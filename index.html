@@ -197,6 +197,109 @@
         .fullday-label { font-size:13px; font-weight:500; }
         .fullday-label small { display:block; font-size:11px; color:var(--muted); font-weight:400; }
 
+        /* ─── RECURRING chips in sidebar ─── */
+        .rec-chip {
+            display:flex; align-items:center; gap:10px;
+            background:var(--card); border:1px solid var(--border);
+            border-left:3px solid var(--meeting); border-radius:6px;
+            padding:10px 12px; margin-bottom:8px;
+        }
+        .rec-chip .rc-inner { flex:1; min-width:0; }
+        .rec-chip .rc-name { font-size:14px; font-weight:600; }
+        .rec-chip .rc-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+        .rec-chip .rc-del {
+            background:none; border:none; color:var(--muted); cursor:pointer;
+            font-size:16px; line-height:1; padding:2px; transition:color .2s;
+        }
+        .rec-chip .rc-del:hover { color:var(--danger); }
+
+        /* biweekly parity toggle row */
+        .parity-row {
+            display:flex; align-items:center; gap:10px;
+            background:rgba(102,187,255,.06); border:1px solid rgba(102,187,255,.2);
+            border-radius:6px; padding:10px 12px; margin-bottom:12px;
+        }
+        .parity-row span { font-size:12px; color:#7cc; flex:1; }
+        .parity-btn {
+            background:none; border:1px solid rgba(102,187,255,.3); color:#7cc;
+            padding:5px 10px; border-radius:4px; font-size:11px; font-weight:700;
+            cursor:pointer; font-family:inherit; transition:all .2s;
+        }
+        .parity-btn:hover { border-color:#7cc; color:#fff; }
+
+        /* ─── SUGGESTIONS TRAY ─── */
+        .suggestions-tray {
+            background:rgba(102,126,234,.06); border:1px solid rgba(102,126,234,.25);
+            border-radius:10px; padding:18px 20px; margin-bottom:24px;
+        }
+        .suggestions-title {
+            font-size:11px; font-weight:700; color:var(--meeting);
+            text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px;
+            display:flex; align-items:center; gap:8px;
+        }
+        .suggestions-title .s-count {
+            background:var(--meeting); color:#fff; font-size:10px;
+            padding:2px 7px; border-radius:10px; font-weight:700;
+        }
+        .suggestion-item {
+            display:flex; align-items:center; gap:12px;
+            background:rgba(0,0,0,.3); border:1px solid rgba(102,126,234,.15);
+            border-radius:6px; padding:11px 13px; margin-bottom:8px;
+        }
+        .suggestion-item:last-child { margin-bottom:0; }
+        .suggestion-item .si-inner { flex:1; min-width:0; }
+        .suggestion-item .si-name { font-size:14px; font-weight:600; }
+        .suggestion-item .si-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+        .si-btns { display:flex; gap:6px; flex-shrink:0; }
+        .si-btn {
+            padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700;
+            cursor:pointer; font-family:inherit; border:none; transition:all .15s;
+            text-transform:uppercase; letter-spacing:.5px;
+        }
+        .si-btn.add { background:var(--meeting); color:#fff; }
+        .si-btn.add:hover { background:#7b8ef5; transform:translateY(-1px); }
+        .si-btn.skip { background:transparent; color:var(--muted); border:1px solid var(--border); }
+        .si-btn.skip:hover { border-color:#555; color:var(--text); }
+
+        /* ─── wizard recurring mini-form ─── */
+        .wiz-rec-form {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:8px; padding:16px; margin-bottom:14px;
+        }
+        .wiz-rec-form .wr-row { display:flex; gap:8px; margin-bottom:10px; }
+        .wiz-rec-form .wr-row:last-child { margin-bottom:0; }
+        .wiz-rec-form input, .wiz-rec-form select {
+            padding:9px 10px; background:#1a1a1a; border:1px solid var(--border);
+            border-radius:6px; color:#fff; font-family:inherit; font-size:13px;
+            transition:border-color .2s;
+        }
+        .wiz-rec-form input:focus, .wiz-rec-form select:focus { outline:none; border-color:#555; }
+        .wiz-rec-form .wr-name { flex:1; min-width:0; }
+        .wiz-rec-form .wr-dur { width:68px; text-align:center; font-family:'DM Mono',monospace; }
+        .wiz-rec-form .wr-add {
+            background:var(--meeting); color:#fff; border:none;
+            padding:9px 14px; border-radius:6px; font-size:11px; font-weight:700;
+            cursor:pointer; font-family:inherit; text-transform:uppercase;
+            letter-spacing:.5px; transition:all .15s; white-space:nowrap;
+        }
+        .wiz-rec-form .wr-add:hover { background:#7b8ef5; }
+
+        /* saved recurring pills in wizard */
+        .wiz-rec-pills { margin-top:12px; }
+        .wiz-rec-pill {
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(102,126,234,.1); border:1px solid rgba(102,126,234,.2);
+            border-radius:6px; padding:8px 11px; margin-bottom:6px;
+            font-size:13px;
+        }
+        .wiz-rec-pill .wp-left { display:flex; align-items:center; gap:8px; }
+        .wiz-rec-pill .wp-dot { width:8px; height:8px; background:var(--meeting); border-radius:50%; }
+        .wiz-rec-pill .wp-rm {
+            background:none; border:none; color:var(--muted); cursor:pointer;
+            font-size:14px; transition:color .2s;
+        }
+        .wiz-rec-pill .wp-rm:hover { color:var(--danger); }
+
         /* chart */
         .chart-box {
             background:var(--card); border:1px solid var(--border);
@@ -245,7 +348,7 @@
         .tbar-fill.warn{ background:var(--admin); }
         .tbar-fill.over{ background:var(--danger); }
 
-        /* PTO full-day banner on day columns */
+        /* PTO full-day banner */
         .pto-banner {
             background:rgba(102,102,102,.15); border:1px solid rgba(102,102,102,.3);
             border-radius:6px; padding:10px 12px; margin-bottom:10px;
@@ -284,6 +387,14 @@
         }
         .item-rm:hover { color:var(--danger); }
 
+        /* recurring badge on confirmed items */
+        .rec-badge {
+            display:inline-block; font-size:9px; font-weight:700;
+            background:rgba(102,126,234,.2); color:var(--meeting);
+            padding:1px 5px; border-radius:3px; margin-left:5px;
+            text-transform:uppercase; letter-spacing:.4px;
+        }
+
         /* summary */
         .summary-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:28px; }
         .summary-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
@@ -309,22 +420,28 @@
 <!-- ── WIZARD ── -->
 <div class="overlay" id="wizardOverlay">
   <div class="panel">
-    <div class="progress-bar"><div class="progress-fill" id="wProg" style="width:25%"></div></div>
+    <div class="progress-bar"><div class="progress-fill" id="wProg" style="width:20%"></div></div>
     <div class="panel-body">
+
+      <!-- 1: Welcome -->
       <div class="step active" id="s1">
         <span class="step-emoji">👋</span>
         <h2>Welcome to Weekly Planner</h2>
         <p>Let's set up your planner in about 30 seconds. A few quick questions about how you work — and we'll calculate your real available hours.</p>
-        <div class="nav-row"><span class="indicator">1 of 4</span><button class="btn-solid" onclick="goStep(2)">Let's Go</button></div>
+        <div class="nav-row"><span class="indicator">1 of 5</span><button class="btn-solid" onclick="goStep(2)">Let's Go</button></div>
       </div>
+
+      <!-- 2: Work hours -->
       <div class="step" id="s2">
         <span class="step-emoji">🕘</span>
         <h2>When do you work?</h2>
         <p>Set your typical start and end times. We'll subtract breaks in the next step.</p>
         <div class="irow"><div class="icon">🌅</div><div class="lbl">Day starts at<small>Usual start time</small></div><input type="time" id="wStart" value="09:00"></div>
         <div class="irow"><div class="icon">🌆</div><div class="lbl">Day ends at<small>Usual end time</small></div><input type="time" id="wEnd" value="17:00"></div>
-        <div class="nav-row"><span class="indicator">2 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(1)">Back</button><button class="btn-solid" onclick="goStep(3)">Next</button></div></div>
+        <div class="nav-row"><span class="indicator">2 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(1)">Back</button><button class="btn-solid" onclick="goStep(3)">Next</button></div></div>
       </div>
+
+      <!-- 3: Breaks -->
       <div class="step" id="s3">
         <span class="step-emoji">☕</span>
         <h2>How do you take breaks?</h2>
@@ -332,16 +449,46 @@
         <div class="irow"><div class="icon">🍽️</div><div class="lbl">Lunch break<small>How long, usually?</small></div><input type="number" id="wLunch" value="30" min="0" max="120" step="5"><span class="unit">min</span></div>
         <div class="irow"><div class="icon">🛋️</div><div class="lbl">Short breaks per day<small>Coffee, walk, stretch…</small></div><input type="number" id="wBreakCt" value="2" min="0" max="10" step="1"><span class="unit">breaks</span></div>
         <div class="irow"><div class="icon">⏱️</div><div class="lbl">Each break is<small>Average length</small></div><input type="number" id="wBreakLen" value="15" min="5" max="60" step="5"><span class="unit">min</span></div>
-        <div class="nav-row"><span class="indicator">3 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(2)">Back</button><button class="btn-solid" onclick="goStep(4)">Next</button></div></div>
+        <div class="nav-row"><span class="indicator">3 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(2)">Back</button><button class="btn-solid" onclick="goStep(4)">Next</button></div></div>
       </div>
+
+      <!-- 4: Work days -->
       <div class="step" id="s4">
         <span class="step-emoji">📅</span>
         <h2>Which days do you work?</h2>
         <p>Tap to toggle the days you plan around.</p>
         <div class="days-grid" id="wDaysGrid"></div>
         <div class="calc-box"><div class="big" id="wCalcNum">32.5h</div><div class="desc"><strong>Available this week</strong>After lunch &amp; breaks</div></div>
-        <div class="nav-row"><span class="indicator">4 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(3)">Back</button><button class="btn-solid" onclick="wizardDone()">Start Planning</button></div></div>
+        <div class="nav-row"><span class="indicator">4 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(3)">Back</button><button class="btn-solid" onclick="goStep(5)">Next</button></div></div>
       </div>
+
+      <!-- 5: Recurring meetings (skippable) -->
+      <div class="step" id="s5">
+        <span class="step-emoji">🔁</span>
+        <h2>Any recurring meetings?</h2>
+        <p>Add meetings that happen every week — or every other week. They'll show up as suggestions each week. You can always skip this and add them later.</p>
+        <div class="wiz-rec-form">
+          <div class="wr-row">
+            <input class="wr-name" type="text" id="wrName" placeholder="e.g. Team standup">
+            <input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.5" min="0.5">
+          </div>
+          <div class="wr-row">
+            <select id="wrDay"></select>
+            <select id="wrCadence">
+              <option value="weekly">Every week</option>
+              <option value="biweekly">Every other week</option>
+              <option value="monthly">Once a month</option>
+            </select>
+            <select id="wrMonthDay" class="hidden" style="width:80px;">
+              <!-- populated dynamically -->
+            </select>
+            <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
+          </div>
+        </div>
+        <div class="wiz-rec-pills" id="wizRecPills"></div>
+        <div class="nav-row"><span class="indicator">5 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(4)">Back</button><button class="btn-solid" onclick="wizardDone()">Start Planning</button></div></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -387,6 +534,33 @@
         <div class="chart-legend" id="chartLeg"></div>
       </div>
 
+      <!-- Recurring (manage) -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Recurring</div>
+      <div id="recChips"></div>
+      <!-- biweekly parity row, shown only when biweekly recurrings exist -->
+      <div id="parityRow" class="hidden parity-row">
+        <span>Bi-weekly phase off?</span>
+        <button class="parity-btn" onclick="flipParity()">Flip</button>
+      </div>
+      <!-- add-new form in sidebar -->
+      <div class="wiz-rec-form" style="margin-top:8px;">
+        <div class="wr-row">
+          <input class="wr-name" type="text" id="sRecName" placeholder="New recurring…">
+          <input class="wr-dur" type="number" id="sRecDur" value="0.5" step="0.5" min="0.5">
+        </div>
+        <div class="wr-row">
+          <select id="sRecDay"></select>
+          <select id="sRecCadence" onchange="onSidebarCadenceChange()">
+            <option value="weekly">Every week</option>
+            <option value="biweekly">Every other week</option>
+            <option value="monthly">Once a month</option>
+          </select>
+          <select id="sRecMonthDay" class="hidden" style="width:80px;"></select>
+          <button class="wr-add" onclick="sidebarAddRecurring()">+ Add</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+
       <!-- Meeting -->
       <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Meeting</div>
       <div class="ig"><label>Name</label><input type="text" id="mName" placeholder="Team standup"></div>
@@ -407,7 +581,7 @@
       <button class="add-btn" onclick="addItem('tasks')">Add Task</button>
       <div class="divider"></div>
 
-      <!-- Other (Admin / PTO / …) -->
+      <!-- Other (Admin / PTO) -->
       <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Other</div>
       <div class="ig">
         <label>Type</label>
@@ -417,16 +591,12 @@
         </select>
       </div>
       <div class="ig"><label>Description</label><input type="text" id="oName" placeholder="Email, doctor appt…"></div>
-
-      <!-- Full-day toggle (shown only when PTO is selected) -->
       <div id="fullDayToggleWrap" class="hidden">
         <div class="fullday-row" id="fullDayRow" onclick="toggleFullDay()">
           <div class="toggle-track" id="fullDayTrack"><div class="knob"></div></div>
           <div class="fullday-label">Full day<small>Blocks the entire day</small></div>
         </div>
       </div>
-
-      <!-- Day + Hours row (hours hidden when full day is on) -->
       <div class="row2" id="otherDayHourRow">
         <div class="ig"><label>Day</label><select id="oDay"></select></div>
         <div class="ig" id="otherHoursWrap"><label>Hours</label><input type="number" id="oDur" value="0.5" step="0.5" min="0.5"></div>
@@ -438,6 +608,8 @@
     </div>
 
     <div class="main-area">
+      <!-- suggestions tray lives here, rendered dynamically -->
+      <div id="suggestionsTray"></div>
       <div class="week-grid" id="weekGrid"></div>
       <div class="summary-box">
         <div class="summary-top"><h3>Weekly Summary</h3><button class="copy-btn" onclick="copySummary()">Copy</button></div>
@@ -448,30 +620,128 @@
 </div>
 
 <script>
-const ALL_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const ALL_DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MONTH_DAYS=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28];
 
-let cfg = { start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15, days:['Monday','Tuesday','Wednesday','Thursday','Friday'] };
-
-// data shape per day: { meetings:[], tasks:[], other:[] }
-// each "other" item: { name, duration, subtype:'admin'|'pto', fullDay:bool, completed }
-let data = {};
-let drag = null;
-let isFullDay = false;   // live state of the full-day toggle
+/* ── state ── */
+let cfg={
+    start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15,
+    days:['Monday','Tuesday','Wednesday','Thursday','Friday'],
+    recurring:[],        // [{id, name, duration, day, cadence, monthDay, biweeklyPhase}]
+    parityFlip:false     // global flip for biweekly parity
+};
+let data={};             // per-day week data
+let weekState={};        // { weekKey: { dismissed:[id…], confirmed:[id…] } }
+let drag=null;
+let isFullDay=false;
 
 /* ── helpers ── */
-function dayHours() {
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function dayHours(){
     const [sh,sm]=cfg.start.split(':').map(Number);
     const [eh,em]=cfg.end.split(':').map(Number);
     return Math.max(0,((eh*60+em)-(sh*60+sm))-cfg.lunch-cfg.breakCt*cfg.breakLen)/60;
 }
 function weekHours(){ return dayHours()*cfg.days.length; }
+
+/* weekKey = ISO date string of this week's Monday */
+function getMonday(d){
+    const date=new Date(d); date.setHours(0,0,0,0);
+    const day=date.getDay(); const diff=date.getDate()-(day===0?-6:day-1);
+    date.setDate(diff); return date;
+}
+function thisWeekKey(){
+    const m=getMonday(new Date());
+    return m.toISOString().slice(0,10); // "2026-02-02"
+}
+
+/* ── recurring logic ── */
+function isRecurringDueThisWeek(rec){
+    const wk=thisWeekKey();
+    const monday=new Date(wk+'T00:00:00');
+
+    if(rec.cadence==='weekly') return true;
+
+    if(rec.cadence==='biweekly'){
+        // epoch monday = 2024-01-01 (a Monday). Count weeks from there.
+        const epoch=new Date('2024-01-01T00:00:00');
+        const weeksSinceEpoch=Math.round((monday-epoch)/(7*24*60*60*1000));
+        // phase 0 = even weeks, phase 1 = odd weeks
+        const phase=weeksSinceEpoch%2;
+        const recPhase=rec.biweeklyPhase||0;
+        const effectivePhase=cfg.parityFlip? (1-recPhase) : recPhase;
+        return phase===effectivePhase;
+    }
+
+    if(rec.cadence==='monthly'){
+        // due if the month of this week contains the monthDay
+        // and the monthDay falls within Mon-Sun of this week
+        const md=rec.monthDay||1;
+        // check each day Mon-Sun
+        for(let i=0;i<7;i++){
+            const d=new Date(monday); d.setDate(monday.getDate()+i);
+            if(d.getDate()===md){
+                // map JS day name to our day name and check it's in cfg.days
+                const dayName=ALL_DAYS[i]; // Mon=0..Sun=6
+                if(cfg.days.includes(dayName)) return true;
+            }
+        }
+        return false;
+    }
+    return false;
+}
+
+function getDayForRecurring(rec){
+    if(rec.cadence==='monthly'){
+        // find which day of the week the monthDay lands on this week
+        const monday=new Date(thisWeekKey()+'T00:00:00');
+        const md=rec.monthDay||1;
+        for(let i=0;i<7;i++){
+            const d=new Date(monday); d.setDate(monday.getDate()+i);
+            if(d.getDate()===md) return ALL_DAYS[i];
+        }
+        return rec.day; // fallback
+    }
+    return rec.day;
+}
+
+function getPendingSuggestions(){
+    const wk=thisWeekKey();
+    const ws=weekState[wk]||{dismissed:[],confirmed:[]};
+    return cfg.recurring.filter(r=>{
+        if(ws.dismissed.includes(r.id)) return false;
+        if(ws.confirmed.includes(r.id)) return false;
+        return isRecurringDueThisWeek(r);
+    });
+}
+
+function confirmSuggestion(id){
+    const wk=thisWeekKey();
+    if(!weekState[wk]) weekState[wk]={dismissed:[],confirmed:[]};
+    weekState[wk].confirmed.push(id);
+    // actually add to day data
+    const rec=cfg.recurring.find(r=>r.id===id);
+    if(!rec) return;
+    const day=getDayForRecurring(rec);
+    if(!data[day]) data[day]={meetings:[],tasks:[],other:[]};
+    data[day].meetings.push({name:rec.name, duration:rec.duration, completed:false, recurringId:id});
+    save(); render();
+}
+
+function dismissSuggestion(id){
+    const wk=thisWeekKey();
+    if(!weekState[wk]) weekState[wk]={dismissed:[],confirmed:[]};
+    weekState[wk].dismissed.push(id);
+    save(); render();
+}
+
+/* ── persistence ── */
 function ensureData(){
     cfg.days.forEach(d=>{
         if(!data[d]) data[d]={meetings:[],tasks:[],other:[]};
         if(!data[d].meetings) data[d].meetings=[];
         if(!data[d].tasks)    data[d].tasks=[];
         if(!data[d].other)    data[d].other=[];
-        /* migrate legacy admin array into other */
         if(data[d].admin){
             data[d].admin.forEach(i=>{
                 data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false});
@@ -479,7 +749,6 @@ function ensureData(){
             delete data[d].admin;
         }
     });
-    /* also migrate any days in data that aren't in cfg.days (stale keys) */
     Object.keys(data).forEach(d=>{
         if(!data[d].other) data[d].other=[];
         if(data[d].admin){
@@ -489,8 +758,14 @@ function ensureData(){
             delete data[d].admin;
         }
     });
+    if(!cfg.recurring) cfg.recurring=[];
+    if(cfg.parityFlip===undefined) cfg.parityFlip=false;
 }
-function save(){ localStorage.setItem('wp_cfg',JSON.stringify(cfg)); localStorage.setItem('wp_data',JSON.stringify(data)); }
+function save(){
+    localStorage.setItem('wp_cfg',JSON.stringify(cfg));
+    localStorage.setItem('wp_data',JSON.stringify(data));
+    localStorage.setItem('wp_weekState',JSON.stringify(weekState));
+}
 
 /* ── boot ── */
 (function boot(){
@@ -499,22 +774,27 @@ function save(){ localStorage.setItem('wp_cfg',JSON.stringify(cfg)); localStorag
         if(c){
             cfg=JSON.parse(c);
             data=JSON.parse(localStorage.getItem('wp_data')||'{}');
+            weekState=JSON.parse(localStorage.getItem('wp_weekState')||'{}');
             ensureData();
             document.getElementById('wizardOverlay').classList.add('hidden');
             showApp();
         } else {
             renderDaysToggle('wDaysGrid');
             updCalc('wCalcNum');
+            populateMonthDaySelect('wrMonthDay');
+            fillWizRecDaySelect();
         }
     } catch(e){
-        // if anything goes wrong reading saved state, nuke it and restart fresh
-        console.error('Boot error, resetting:', e);
+        console.error('Boot error, resetting:',e);
         localStorage.removeItem('wp_cfg');
         localStorage.removeItem('wp_data');
-        data={};
-        cfg={ start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15, days:['Monday','Tuesday','Wednesday','Thursday','Friday'] };
+        localStorage.removeItem('wp_weekState');
+        data={}; weekState={};
+        cfg={start:'09:00',end:'17:00',lunch:30,breakCt:2,breakLen:15,days:['Monday','Tuesday','Wednesday','Thursday','Friday'],recurring:[],parityFlip:false};
         renderDaysToggle('wDaysGrid');
         updCalc('wCalcNum');
+        populateMonthDaySelect('wrMonthDay');
+        fillWizRecDaySelect();
     }
 })();
 
@@ -537,14 +817,79 @@ function renderDaysToggle(id){
 }
 function updCalc(id){ document.getElementById(id).textContent=weekHours().toFixed(1)+'h'; }
 
+/* ── month day select helper ── */
+function populateMonthDaySelect(selectId){
+    const s=document.getElementById(selectId);
+    if(!s) return;
+    s.innerHTML=MONTH_DAYS.map(n=>`<option value="${n}">${n}th</option>`).join('');
+}
+
+/* ── wizard day select for recurring ── */
+function fillWizRecDaySelect(){
+    const s=document.getElementById('wrDay');
+    if(!s) return;
+    s.innerHTML='';
+    cfg.days.forEach(d=> s.innerHTML+=`<option value="${d}">${d}</option>`);
+}
+
 /* ── wizard ── */
 function goStep(n){
     if(n>=3){ cfg.start=document.getElementById('wStart').value; cfg.end=document.getElementById('wEnd').value; }
     if(n>=4){ cfg.lunch=+document.getElementById('wLunch').value||30; cfg.breakCt=+document.getElementById('wBreakCt').value||0; cfg.breakLen=+document.getElementById('wBreakLen').value||15; updCalc('wCalcNum'); }
+    if(n>=5){
+        // refresh the day select in the recurring form in case days changed on step 4
+        fillWizRecDaySelect();
+        renderWizRecPills();
+    }
     document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
     document.getElementById('s'+n).classList.add('active');
-    document.getElementById('wProg').style.width=(n*25)+'%';
+    document.getElementById('wProg').style.width=(n*20)+'%'; // 5 steps
 }
+
+/* cadence change handler in wizard */
+document.addEventListener('DOMContentLoaded',()=>{
+    const wrCad=document.getElementById('wrCadence');
+    if(wrCad) wrCad.addEventListener('change',()=>{
+        const isMonthly=wrCad.value==='monthly';
+        document.getElementById('wrMonthDay').classList.toggle('hidden',!isMonthly);
+    });
+});
+
+function wizAddRecurring(){
+    const name=document.getElementById('wrName').value.trim();
+    const dur=parseFloat(document.getElementById('wrDur').value);
+    const day=document.getElementById('wrDay').value;
+    const cadence=document.getElementById('wrCadence').value;
+    const monthDay=cadence==='monthly'? +document.getElementById('wrMonthDay').value : undefined;
+    if(!name||!dur) return;
+
+    cfg.recurring.push({
+        id:uid(), name, duration:dur, day, cadence, monthDay,
+        biweeklyPhase: cadence==='biweekly' ? (new Date().getDate()%2) : undefined
+    });
+    // reset form
+    document.getElementById('wrName').value='';
+    document.getElementById('wrDur').value='0.5';
+    renderWizRecPills();
+}
+
+function wizRemoveRecurring(id){
+    cfg.recurring=cfg.recurring.filter(r=>r.id!==id);
+    renderWizRecPills();
+}
+
+function renderWizRecPills(){
+    const el=document.getElementById('wizRecPills');
+    if(!el) return;
+    el.innerHTML=cfg.recurring.map(r=>{
+        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':`Monthly (${r.monthDay}th)`;
+        return `<div class="wiz-rec-pill">
+            <div class="wp-left"><div class="wp-dot"></div><span>${r.name} · ${r.duration}h · ${r.day} · ${cadLabel}</span></div>
+            <button class="wp-rm" onclick="wizRemoveRecurring('${r.id}')">✕</button>
+        </div>`;
+    }).join('');
+}
+
 function wizardDone(){ ensureData(); save(); document.getElementById('wizardOverlay').classList.add('hidden'); showApp(); }
 
 /* ── settings ── */
@@ -567,58 +912,103 @@ function saveSettings(){
     ensureData(); save(); closeSettings(); render();
 }
 
+/* ── sidebar recurring ── */
+function onSidebarCadenceChange(){
+    const isMonthly=document.getElementById('sRecCadence').value==='monthly';
+    document.getElementById('sRecMonthDay').classList.toggle('hidden',!isMonthly);
+}
+
+function sidebarAddRecurring(){
+    const name=document.getElementById('sRecName').value.trim();
+    const dur=parseFloat(document.getElementById('sRecDur').value);
+    const day=document.getElementById('sRecDay').value;
+    const cadence=document.getElementById('sRecCadence').value;
+    const monthDay=cadence==='monthly'? +document.getElementById('sRecMonthDay').value : undefined;
+    if(!name||!dur) return;
+    cfg.recurring.push({
+        id:uid(), name, duration:dur, day, cadence, monthDay,
+        biweeklyPhase: cadence==='biweekly' ? (new Date().getDate()%2) : undefined
+    });
+    document.getElementById('sRecName').value='';
+    document.getElementById('sRecDur').value='0.5';
+    save(); render();
+}
+
+function deleteRecurring(id){
+    cfg.recurring=cfg.recurring.filter(r=>r.id!==id);
+    // also clean weekState refs
+    Object.keys(weekState).forEach(wk=>{
+        if(weekState[wk].confirmed) weekState[wk].confirmed=weekState[wk].confirmed.filter(x=>x!==id);
+        if(weekState[wk].dismissed) weekState[wk].dismissed=weekState[wk].dismissed.filter(x=>x!==id);
+    });
+    save(); render();
+}
+
+function flipParity(){
+    cfg.parityFlip=!cfg.parityFlip;
+    // clear this week's dismissed/confirmed so suggestions re-evaluate
+    const wk=thisWeekKey();
+    if(weekState[wk]){
+        weekState[wk].dismissed=weekState[wk].dismissed.filter(id=>{
+            const r=cfg.recurring.find(x=>x.id===id);
+            return r && r.cadence!=='biweekly';
+        });
+        weekState[wk].confirmed=weekState[wk].confirmed.filter(id=>{
+            const r=cfg.recurring.find(x=>x.id===id);
+            return r && r.cadence!=='biweekly';
+        });
+        // remove biweekly meetings that were added this week from data
+        cfg.days.forEach(d=>{
+            if(data[d]&&data[d].meetings){
+                data[d].meetings=data[d].meetings.filter(m=>{
+                    if(!m.recurringId) return true;
+                    const r=cfg.recurring.find(x=>x.id===m.recurringId);
+                    return !(r&&r.cadence==='biweekly');
+                });
+            }
+        });
+    }
+    save(); render();
+}
+
 /* ── Other section UI logic ── */
 function onOtherTypeChange(){
-    const isPTO = document.getElementById('oType').value === 'pto';
-    document.getElementById('fullDayToggleWrap').classList.toggle('hidden', !isPTO);
+    const isPTO=document.getElementById('oType').value==='pto';
+    document.getElementById('fullDayToggleWrap').classList.toggle('hidden',!isPTO);
     if(!isPTO){ isFullDay=false; syncFullDayUI(); }
 }
-
-function toggleFullDay(){
-    isFullDay = !isFullDay;
-    syncFullDayUI();
-}
-
+function toggleFullDay(){ isFullDay=!isFullDay; syncFullDayUI(); }
 function syncFullDayUI(){
-    const track = document.getElementById('fullDayTrack');
-    const row   = document.getElementById('fullDayRow');
-    track.classList.toggle('on', isFullDay);
-    row.classList.toggle('active', isFullDay);
-    document.getElementById('otherHoursWrap').classList.toggle('hidden', isFullDay);
+    document.getElementById('fullDayTrack').classList.toggle('on',isFullDay);
+    document.getElementById('fullDayRow').classList.toggle('active',isFullDay);
+    document.getElementById('otherHoursWrap').classList.toggle('hidden',isFullDay);
 }
 
 /* ── add / remove ── */
 function addItem(type){
-    const map = { meetings:{n:'mName',d:'mDay',dur:'mDur'}, tasks:{n:'tName',d:'tDay',dur:'tDur'} };
+    const map={meetings:{n:'mName',d:'mDay',dur:'mDur'},tasks:{n:'tName',d:'tDay',dur:'tDur'}};
     const f=map[type];
     const name=document.getElementById(f.n).value.trim();
-    const day =document.getElementById(f.d).value;
-    const dur =parseFloat(document.getElementById(f.dur).value);
+    const day=document.getElementById(f.d).value;
+    const dur=parseFloat(document.getElementById(f.dur).value);
     if(!name||!dur) return;
     data[day][type].push({name,duration:dur,completed:false});
     document.getElementById(f.n).value='';
     document.getElementById(f.dur).value='0.5';
     save(); render();
 }
-
 function addOther(){
-    const subtype = document.getElementById('oType').value;
-    const name    = document.getElementById('oName').value.trim();
-    const day     = document.getElementById('oDay').value;
-    const dur     = isFullDay ? dayHours() : parseFloat(document.getElementById('oDur').value);
-
+    const subtype=document.getElementById('oType').value;
+    const name=document.getElementById('oName').value.trim();
+    const day=document.getElementById('oDay').value;
+    const dur=isFullDay?dayHours():parseFloat(document.getElementById('oDur').value);
     if(!name||!dur) return;
-
-    data[day].other.push({ name, duration:dur, subtype, fullDay:isFullDay, completed:false });
-
-    // reset form
+    data[day].other.push({name,duration:dur,subtype,fullDay:isFullDay,completed:false});
     document.getElementById('oName').value='';
     document.getElementById('oDur').value='0.5';
-    // keep type selection but reset full-day
     isFullDay=false; syncFullDayUI();
     save(); render();
 }
-
 function removeItem(day,type,i){ data[day][type].splice(i,1); save(); render(); }
 function toggleDone(day,type,i){ data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
 
@@ -632,29 +1022,78 @@ function dDrop(e,target){
     e.preventDefault(); e.currentTarget.classList.remove('drag-over');
     if(!drag||drag.day===target) return;
     const item=data[drag.day][drag.type].splice(drag.i,1)[0];
-    // if it was a full-day PTO moved to a new day, keep it full-day but update duration to target day hours
     if(item.fullDay) item.duration=dayHours();
+    if(!data[target]) data[target]={meetings:[],tasks:[],other:[]};
     data[target][drag.type].push(item);
     drag=null; save(); render();
 }
 
 /* ── populate selects ── */
 function fillSelects(){
-    ['mDay','tDay','oDay'].forEach(id=>{
-        const s=document.getElementById(id); s.innerHTML='';
+    ['mDay','tDay','oDay','sRecDay'].forEach(id=>{
+        const s=document.getElementById(id);
+        if(!s) return;
+        s.innerHTML='';
         cfg.days.forEach(d=>s.innerHTML+=`<option value="${d}">${d}</option>`);
     });
+    populateMonthDaySelect('sRecMonthDay');
 }
 
 /* ── RENDER ── */
 function showApp(){
     document.getElementById('app').classList.add('on');
     fillSelects();
-    // small defer so the app DOM is painted before we try to draw on canvas etc.
-    setTimeout(()=>render(), 0);
+    setTimeout(()=>render(),0);
 }
-function render(){ renderGrid(); renderPie(); renderStats(); renderSummary(); }
+function render(){ renderSuggestions(); renderRecChips(); renderGrid(); renderPie(); renderStats(); renderSummary(); }
 
+/* ── suggestions tray ── */
+function renderSuggestions(){
+    const el=document.getElementById('suggestionsTray');
+    const pending=getPendingSuggestions();
+    if(!pending.length){ el.innerHTML=''; return; }
+    el.innerHTML=`<div class="suggestions-tray">
+        <div class="suggestions-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Recurring this week
+            <span class="s-count">${pending.length}</span>
+        </div>
+        ${pending.map(r=>{
+            const day=getDayForRecurring(r);
+            const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Bi-weekly':`Monthly`;
+            return `<div class="suggestion-item">
+                <div class="si-inner">
+                    <div class="si-name">${r.name}</div>
+                    <div class="si-meta">${r.duration}h · ${day} · ${cadLabel}</div>
+                </div>
+                <div class="si-btns">
+                    <button class="si-btn add" onclick="confirmSuggestion('${r.id}')">Add</button>
+                    <button class="si-btn skip" onclick="dismissSuggestion('${r.id}')">Skip</button>
+                </div>
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+/* ── recurring chips in sidebar ── */
+function renderRecChips(){
+    const el=document.getElementById('recChips');
+    el.innerHTML=cfg.recurring.map(r=>{
+        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':`Monthly (${r.monthDay}th)`;
+        return `<div class="rec-chip">
+            <div class="rc-inner">
+                <div class="rc-name">${r.name}</div>
+                <div class="rc-meta">${r.duration}h · ${r.day} · ${cadLabel}</div>
+            </div>
+            <button class="rc-del" onclick="deleteRecurring('${r.id}')">✕</button>
+        </div>`;
+    }).join('');
+    // show/hide parity row
+    const hasBiweekly=cfg.recurring.some(r=>r.cadence==='biweekly');
+    document.getElementById('parityRow').classList.toggle('hidden',!hasBiweekly);
+}
+
+/* ── grid ── */
 function renderGrid(){
     const g=document.getElementById('weekGrid');
     g.style.gridTemplateColumns=`repeat(${cfg.days.length},1fr)`;
@@ -666,10 +1105,7 @@ function renderGrid(){
         const T=data[day]?.tasks||[];
         const O=data[day]?.other||[];
 
-        // separate full-day PTO from regular others
-        const fullDayPTO = O.filter(i=>i.fullDay && i.subtype==='pto');
-        const regularO   = O.filter(i=>!i.fullDay || i.subtype!=='pto');
-
+        const fullDayPTO=O.filter(i=>i.fullDay&&i.subtype==='pto');
         const used=[...M,...T,...O].reduce((s,i)=>s+i.duration,0);
         const free=dh-used;
         const pct=Math.min((used/dh)*100,100);
@@ -683,10 +1119,9 @@ function renderGrid(){
 
         let items='';
 
-        // full-day PTO banner (sits at top, not draggable)
-        fullDayPTO.forEach((it,rawIdx)=>{
-            // find real index in O array
-            const realIdx = O.indexOf(it);
+        // full-day PTO banners
+        fullDayPTO.forEach(it=>{
+            const realIdx=O.indexOf(it);
             items+=`<div class="pto-banner">
                 <div class="pto-label">🏖️ PTO — ${it.name}</div>
                 <div class="pto-sub">Full day (${it.duration.toFixed(1)}h)</div>
@@ -694,30 +1129,38 @@ function renderGrid(){
             </div>`;
         });
 
-        // regular items
-        const row=(arr,type,cls)=>arr.forEach((it,i)=>{
-            const label = type==='meetings'?'Meeting':type==='tasks'?'Task':it.subtype==='pto'?'PTO':'Admin';
-            const colorCls = type==='meetings'?'':type==='tasks'?'task':it.subtype==='pto'?'pto':'admin';
-            items+=`<div class="item ${colorCls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','${type}',${i})" ondragend="dEnd(event)">
+        // meetings
+        M.forEach((it,i)=>{
+            const recBadge=it.recurringId?'<span class="rec-badge">recurring</span>':'';
+            items+=`<div class="item ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','meetings',${i})" ondragend="dEnd(event)">
                 <div class="item-top">
-                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','${type}',${i})">
-                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}</div></div>
+                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','meetings',${i})">
+                    <div class="item-inner"><div class="item-name">${it.name}${recBadge}</div><div class="item-meta">${it.duration}h · Meeting</div></div>
                 </div>
-                <button class="item-rm" onclick="removeItem('${day}','${type}',${i})">Remove</button>
+                <button class="item-rm" onclick="removeItem('${day}','meetings',${i})">Remove</button>
             </div>`;
         });
 
-        row(M,'meetings','');
-        row(T,'tasks','');
-        // for "other", we pass the full array so indices stay correct
+        // tasks
+        T.forEach((it,i)=>{
+            items+=`<div class="item task ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','tasks',${i})" ondragend="dEnd(event)">
+                <div class="item-top">
+                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','tasks',${i})">
+                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · Task</div></div>
+                </div>
+                <button class="item-rm" onclick="removeItem('${day}','tasks',${i})">Remove</button>
+            </div>`;
+        });
+
+        // other (admin/pto)
         O.forEach((it,i)=>{
-            if(it.fullDay && it.subtype==='pto') return; // already rendered as banner
-            const label = it.subtype==='pto'?'PTO':'Admin';
-            const colorCls = it.subtype==='pto'?'pto':'admin';
+            if(it.fullDay&&it.subtype==='pto') return;
+            const label=it.subtype==='pto'?'PTO':'Admin';
+            const colorCls=it.subtype==='pto'?'pto':'admin';
             items+=`<div class="item ${colorCls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','other',${i})" ondragend="dEnd(event)">
                 <div class="item-top">
                     <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','other',${i})">
-                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}</div></div>
+                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}${it.fullDay?' – Full Day':''}</div></div>
                 </div>
                 <button class="item-rm" onclick="removeItem('${day}','other',${i})">Remove</button>
             </div>`;
@@ -733,8 +1176,10 @@ function renderGrid(){
     });
 }
 
+/* ── pie ── */
 function renderPie(){
     const c=document.getElementById('pieChart'), ctx=c.getContext('2d');
+    if(!ctx) return;
     ctx.clearRect(0,0,c.width,c.height);
     let M=0,T=0,A=0,P=0;
     cfg.days.forEach(d=>{
@@ -744,21 +1189,18 @@ function renderPie(){
     });
     const tot=M+T+A+P;
     const cx=c.width/2, cy=c.height/2, r=65;
-
     if(!tot){
         ctx.strokeStyle='#222'; ctx.lineWidth=14;
         ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
         document.getElementById('chartLeg').innerHTML='<div style="color:#555;text-align:center;font-size:12px;padding-top:6px;">No time logged yet</div>';
         return;
     }
-
     const slices=[
         {label:'Meetings',val:M,color:'#667eea'},
         {label:'Tasks',val:T,color:'#48bb78'},
         {label:'Admin',val:A,color:'#f6ad55'},
         {label:'PTO',val:P,color:'#666'}
     ].filter(s=>s.val>0);
-
     let ang=-Math.PI/2;
     slices.forEach(s=>{
         const sw=(s.val/tot)*Math.PI*2;
@@ -773,12 +1215,12 @@ function renderPie(){
     ctx.font='700 15px "DM Mono",monospace';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(tot.toFixed(1)+'h',cx,cy);
-
     document.getElementById('chartLeg').innerHTML=slices.map(s=>
         `<div class="leg-row"><div class="leg-left"><div class="leg-dot" style="background:${s.color}"></div><span class="leg-name">${s.label}</span></div><span class="leg-val">${s.val.toFixed(1)}h</span></div>`
     ).join('');
 }
 
+/* ── stats ── */
 function renderStats(){
     let M=0,T=0,A=0,P=0,over=0;
     const dh=dayHours();
@@ -800,11 +1242,16 @@ function renderStats(){
         ${over>0?`<div class="alert alert-warn">⚠️ ${over} day(s) overbooked</div>`:tot>0?`<div class="alert alert-ok">✓ Week balanced</div>`:''}`;
 }
 
+/* ── summary ── */
 function renderSummary(){
     let lines=[],any=false,cM=0,cT=0,cA=0,cP=0;
     cfg.days.forEach(day=>{
         const dl=[];
-        (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cM+=i.duration;any=true;});
+        (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{
+            const tag=i.recurringId?' [recurring]':'';
+            dl.push(`  • ${i.name}${tag} (${i.duration}h)`);
+            cM+=i.duration; any=true;
+        });
         (data[day]?.tasks||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cT+=i.duration;any=true;});
         (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{
             const tag=i.subtype==='pto'?'PTO':'Admin';
@@ -836,9 +1283,15 @@ function copySummary(){
     });
 }
 
+/* ── reset: clears one-offs + confirmed suggestions, but re-shows suggestions ── */
 function resetWeek(){
-    if(!confirm('Clear everything for this week?')) return;
-    data={}; ensureData(); save(); render();
+    if(!confirm('Clear this week? Recurring suggestions will reappear.')) return;
+    // wipe day data
+    data={}; ensureData();
+    // wipe this week's state so suggestions come back
+    const wk=thisWeekKey();
+    delete weekState[wk];
+    save(); render();
 }
 </script>
 </body>
