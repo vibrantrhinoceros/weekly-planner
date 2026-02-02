@@ -465,19 +465,54 @@ function dayHours() {
     return Math.max(0,((eh*60+em)-(sh*60+sm))-cfg.lunch-cfg.breakCt*cfg.breakLen)/60;
 }
 function weekHours(){ return dayHours()*cfg.days.length; }
-function ensureData(){ cfg.days.forEach(d=>{ if(!data[d]) data[d]={meetings:[],tasks:[],other:[]}; /* migrate legacy admin */ if(data[d].admin){ data[d].other=data[d].other.concat(data[d].admin.map(i=>({...i,subtype:'admin',fullDay:false}))); delete data[d].admin; } }); }
+function ensureData(){
+    cfg.days.forEach(d=>{
+        if(!data[d]) data[d]={meetings:[],tasks:[],other:[]};
+        if(!data[d].meetings) data[d].meetings=[];
+        if(!data[d].tasks)    data[d].tasks=[];
+        if(!data[d].other)    data[d].other=[];
+        /* migrate legacy admin array into other */
+        if(data[d].admin){
+            data[d].admin.forEach(i=>{
+                data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false});
+            });
+            delete data[d].admin;
+        }
+    });
+    /* also migrate any days in data that aren't in cfg.days (stale keys) */
+    Object.keys(data).forEach(d=>{
+        if(!data[d].other) data[d].other=[];
+        if(data[d].admin){
+            data[d].admin.forEach(i=>{
+                data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false});
+            });
+            delete data[d].admin;
+        }
+    });
+}
 function save(){ localStorage.setItem('wp_cfg',JSON.stringify(cfg)); localStorage.setItem('wp_data',JSON.stringify(data)); }
 
 /* ── boot ── */
 (function boot(){
-    const c=localStorage.getItem('wp_cfg');
-    if(c){
-        cfg=JSON.parse(c);
-        data=JSON.parse(localStorage.getItem('wp_data')||'{}');
-        ensureData();
-        document.getElementById('wizardOverlay').classList.add('hidden');
-        showApp();
-    } else {
+    try {
+        const c=localStorage.getItem('wp_cfg');
+        if(c){
+            cfg=JSON.parse(c);
+            data=JSON.parse(localStorage.getItem('wp_data')||'{}');
+            ensureData();
+            document.getElementById('wizardOverlay').classList.add('hidden');
+            showApp();
+        } else {
+            renderDaysToggle('wDaysGrid');
+            updCalc('wCalcNum');
+        }
+    } catch(e){
+        // if anything goes wrong reading saved state, nuke it and restart fresh
+        console.error('Boot error, resetting:', e);
+        localStorage.removeItem('wp_cfg');
+        localStorage.removeItem('wp_data');
+        data={};
+        cfg={ start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15, days:['Monday','Tuesday','Wednesday','Thursday','Friday'] };
         renderDaysToggle('wDaysGrid');
         updCalc('wCalcNum');
     }
@@ -612,7 +647,12 @@ function fillSelects(){
 }
 
 /* ── RENDER ── */
-function showApp(){ document.getElementById('app').classList.add('on'); fillSelects(); render(); }
+function showApp(){
+    document.getElementById('app').classList.add('on');
+    fillSelects();
+    // small defer so the app DOM is painted before we try to draw on canvas etc.
+    setTimeout(()=>render(), 0);
+}
 function render(){ renderGrid(); renderPie(); renderStats(); renderSummary(); }
 
 function renderGrid(){
