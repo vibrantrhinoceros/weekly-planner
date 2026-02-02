@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Task Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: #fafafa;
+            padding: 30px;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .main {
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 25px 0;
+        }
+
+        .weekly-view {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        .day-column {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        .day-header {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+            color: #333;
+        }
+
+        .time-summary {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .time-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .time-bar-fill {
+            height: 100%;
+            background: #48bb78;
+            transition: all 0.3s;
+        }
+
+        .time-bar-fill.warning {
+            background: #f6ad55;
+        }
+
+        .time-bar-fill.danger {
+            background: #fc8181;
+        }
+
+        .item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+            font-size: 13px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .item.meeting {
+            border-left-color: #667eea;
+        }
+
+        .item.task {
+            border-left-color: #48bb78;
+        }
+
+        .item-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .item-time {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .item-actions {
+            margin-top: 6px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-actions button {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 2px 6px;
+        }
+
+        .item-actions button:hover {
+            color: #fc8181;
+        }
+
+        .stats {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .warning-box {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #c53030;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border: 1px solid #48bb78;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #276749;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Weekly Task Planner</h1>
+            <p>Plan your week around meetings and see if it's actually possible</p>
+        </div>
+
+        <div class="content">
+            <div class="sidebar">
+                <div class="section-title">Add Meeting</div>
+                <div class="input-group">
+                    <label>Meeting Name</label>
+                    <input type="text" id="meetingName" placeholder="Team standup">
+                </div>
+                <div class="input-group">
+                    <label>Day</label>
+                    <select id="meetingDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Duration (hours)</label>
+                    <input type="number" id="meetingDuration" value="0.5" step="0.5" min="0.5">
+                </div>
+                <button class="btn btn-primary" onclick="addMeeting()">Add Meeting</button>
+
+                <div class="divider"></div>
+
+                <div class="section-title">Add Task</div>
+                <div class="input-group">
+                    <label>Task Name</label>
+                    <input type="text" id="taskName" placeholder="Write project proposal">
+                </div>
+                <div class="input-group">
+                    <label>Day</label>
+                    <select id="taskDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Estimated Time (hours)</label>
+                    <input type="number" id="taskDuration" value="0.5" step="0.5" min="0.5">
+                </div>
+                <button class="btn btn-secondary" onclick="addTask()">Add Task</button>
+
+                <div id="weekStats" class="stats" style="margin-top: 25px;">
+                    <!-- Stats will be inserted here -->
+                </div>
+            </div>
+
+            <div class="main">
+                <div class="weekly-view" id="weeklyView">
+                    <!-- Days will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WORK_HOURS_PER_DAY = 6.5;
+        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        
+        let weekData = {
+            Monday: { meetings: [], tasks: [] },
+            Tuesday: { meetings: [], tasks: [] },
+            Wednesday: { meetings: [], tasks: [] },
+            Thursday: { meetings: [], tasks: [] },
+            Friday: { meetings: [], tasks: [] }
+        };
+
+        function addMeeting() {
+            const name = document.getElementById('meetingName').value;
+            const day = document.getElementById('meetingDay').value;
+            const duration = parseFloat(document.getElementById('meetingDuration').value);
+
+            if (!name || !duration) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            weekData[day].meetings.push({ name, duration });
+            
+            // Clear inputs
+            document.getElementById('meetingName').value = '';
+            document.getElementById('meetingDuration').value = '';
+            
+            render();
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value;
+            const day = document.getElementById('taskDay').value;
+            const duration = parseFloat(document.getElementById('taskDuration').value);
+
+            if (!name || !duration) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            weekData[day].tasks.push({ name, duration });
+            
+            // Clear inputs
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDuration').value = '';
+            
+            render();
+        }
+
+        function removeItem(day, type, index) {
+            weekData[day][type].splice(index, 1);
+            render();
+        }
+
+        function calculateDayHours(day) {
+            const meetingHours = weekData[day].meetings.reduce((sum, m) => sum + m.duration, 0);
+            const taskHours = weekData[day].tasks.reduce((sum, t) => sum + t.duration, 0);
+            const totalCommitted = meetingHours + taskHours;
+            const available = WORK_HOURS_PER_DAY - totalCommitted;
+            
+            return { meetingHours, taskHours, totalCommitted, available };
+        }
+
+        function calculateWeekStats() {
+            let totalMeetings = 0;
+            let totalTasks = 0;
+            let totalCommitted = 0;
+            let overcommittedDays = 0;
+
+            DAYS.forEach(day => {
+                const stats = calculateDayHours(day);
+                totalMeetings += stats.meetingHours;
+                totalTasks += stats.taskHours;
+                totalCommitted += stats.totalCommitted;
+                if (stats.available < 0) overcommittedDays++;
+            });
+
+            const totalAvailable = WORK_HOURS_PER_DAY * 5;
+
+            return {
+                totalMeetings,
+                totalTasks,
+                totalCommitted,
+                totalAvailable,
+                overcommittedDays
+            };
+        }
+
+        function render() {
+            // Render weekly view
+            const weeklyView = document.getElementById('weeklyView');
+            weeklyView.innerHTML = '';
+
+            DAYS.forEach(day => {
+                const dayStats = calculateDayHours(day);
+                const percentFilled = (dayStats.totalCommitted / WORK_HOURS_PER_DAY) * 100;
+                
+                let barClass = '';
+                if (percentFilled > 100) barClass = 'danger';
+                else if (percentFilled > 80) barClass = 'warning';
+
+                const dayColumn = document.createElement('div');
+                dayColumn.className = 'day-column';
+                
+                let itemsHTML = '';
+                
+                // Add meetings
+                weekData[day].meetings.forEach((meeting, index) => {
+                    itemsHTML += `
+                        <div class="item meeting">
+                            <div class="item-title">${meeting.name}</div>
+                            <div class="item-time">${meeting.duration}h · Meeting</div>
+                            <div class="item-actions">
+                                <button onclick="removeItem('${day}', 'meetings', ${index})">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Add tasks
+                weekData[day].tasks.forEach((task, index) => {
+                    itemsHTML += `
+                        <div class="item task">
+                            <div class="item-title">${task.name}</div>
+                            <div class="item-time">${task.duration}h · Task</div>
+                            <div class="item-actions">
+                                <button onclick="removeItem('${day}', 'tasks', ${index})">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                dayColumn.innerHTML = `
+                    <div class="day-header">${day}</div>
+                    <div class="time-summary">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                            <span>Committed: ${dayStats.totalCommitted}h</span>
+                            <span style="${dayStats.available < 0 ? 'color: #c53030; font-weight: 600;' : 'color: #48bb78;'}">
+                                ${dayStats.available >= 0 ? dayStats.available + 'h free' : Math.abs(dayStats.available) + 'h over'}
+                            </span>
+                        </div>
+                        <div class="time-bar">
+                            <div class="time-bar-fill ${barClass}" style="width: ${Math.min(percentFilled, 100)}%"></div>
+                        </div>
+                    </div>
+                    ${itemsHTML}
+                `;
+
+                weeklyView.appendChild(dayColumn);
+            });
+
+            // Render stats
+            const weekStats = calculateWeekStats();
+            const statsHTML = `
+                <div class="stat-row">
+                    <span class="stat-label">Meeting Time:</span>
+                    <span class="stat-value">${weekStats.totalMeetings}h</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Task Time:</span>
+                    <span class="stat-value">${weekStats.totalTasks}h</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Week:</span>
+                    <span class="stat-value">${weekStats.totalCommitted}h / ${weekStats.totalAvailable}h</span>
+                </div>
+                ${weekStats.overcommittedDays > 0 
+                    ? `<div class="warning-box">⚠️ ${weekStats.overcommittedDays} day(s) are overbooked!</div>`
+                    : weekStats.totalCommitted > 0 
+                        ? `<div class="success-box">✓ Week is balanced</div>`
+                        : ''
+                }
+            `;
+            document.getElementById('weekStats').innerHTML = statsHTML;
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
