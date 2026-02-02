@@ -145,6 +145,16 @@
             background: #e0e0e0;
         }
 
+        .btn-summary {
+            background: #48bb78;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        .btn-summary:hover {
+            background: #38a169;
+        }
+
         .divider {
             height: 1px;
             background: #222;
@@ -155,6 +165,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 20px;
+            margin-bottom: 30px;
         }
 
         .day-column {
@@ -163,6 +174,11 @@
             border-radius: 12px;
             padding: 20px;
             min-height: 400px;
+        }
+
+        .day-column.drag-over {
+            border-color: #fff;
+            background: #1a1a1a;
         }
 
         .day-header {
@@ -216,6 +232,16 @@
             font-size: 13px;
             border: 1px solid #222;
             border-left-width: 3px;
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .item:hover {
+            background: #1a1a1a;
+        }
+
+        .item.dragging {
+            opacity: 0.5;
         }
 
         .item.meeting {
@@ -226,21 +252,45 @@
             border-left-color: #48bb78;
         }
 
+        .item.completed {
+            opacity: 0.5;
+        }
+
+        .item.completed .item-title {
+            text-decoration: line-through;
+        }
+
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .item-checkbox {
+            margin-top: 2px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
         .item-title {
             font-weight: 500;
-            margin-bottom: 4px;
             color: #fff;
+            flex: 1;
         }
 
         .item-time {
             font-size: 11px;
             color: #999;
+            margin-left: 24px;
         }
 
         .item-actions {
             margin-top: 8px;
             display: flex;
             gap: 8px;
+            margin-left: 24px;
         }
 
         .item-actions button {
@@ -303,12 +353,70 @@
             font-size: 12px;
             color: #48bb78;
         }
+
+        .summary-section {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .copy-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .summary-content {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #fff;
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        .summary-empty {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Weekly Task Planner</h1>
+            <p>Plan your week around meetings and see if it's actually possible</p>
         </div>
 
         <div class="content">
@@ -381,6 +489,16 @@
                 <div class="weekly-view" id="weeklyView">
                     <!-- Days will be inserted here -->
                 </div>
+
+                <div class="summary-section">
+                    <div class="summary-header">
+                        <h2 class="summary-title">Weekly Summary</h2>
+                        <button class="copy-btn" onclick="copySummary()">Copy to Clipboard</button>
+                    </div>
+                    <div class="summary-content" id="summaryContent">
+                        <span class="summary-empty">Check off completed tasks to generate your weekly summary...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -397,6 +515,9 @@
             Friday: { meetings: [], tasks: [] }
         };
 
+        let draggedItem = null;
+        let draggedFrom = null;
+
         function addMeeting() {
             const name = document.getElementById('meetingName').value;
             const day = document.getElementById('meetingDay').value;
@@ -407,7 +528,7 @@
                 return;
             }
 
-            weekData[day].meetings.push({ name, duration });
+            weekData[day].meetings.push({ name, duration, completed: false });
             
             // Clear inputs
             document.getElementById('meetingName').value = '';
@@ -426,7 +547,7 @@
                 return;
             }
 
-            weekData[day].tasks.push({ name, duration });
+            weekData[day].tasks.push({ name, duration, completed: false });
             
             // Clear inputs
             document.getElementById('taskName').value = '';
@@ -435,8 +556,66 @@
             render();
         }
 
+        function toggleComplete(day, type, index) {
+            weekData[day][type][index].completed = !weekData[day][type][index].completed;
+            render();
+            updateSummary();
+        }
+
         function removeItem(day, type, index) {
             weekData[day][type].splice(index, 1);
+            render();
+            updateSummary();
+        }
+
+        function handleDragStart(e, day, type, index) {
+            draggedItem = { day, type, index };
+            draggedFrom = day;
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.day-column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            if (e.currentTarget.classList.contains('day-column')) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            if (e.currentTarget.classList.contains('day-column')) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e, targetDay) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (!draggedItem || draggedFrom === targetDay) return;
+
+            // Get the item
+            const item = weekData[draggedFrom][draggedItem.type][draggedItem.index];
+            
+            // Remove from old day
+            weekData[draggedFrom][draggedItem.type].splice(draggedItem.index, 1);
+            
+            // Add to new day
+            weekData[targetDay][draggedItem.type].push(item);
+            
+            draggedItem = null;
+            draggedFrom = null;
+            
             render();
         }
 
@@ -474,6 +653,57 @@
             };
         }
 
+        function updateSummary() {
+            const summaryContent = document.getElementById('summaryContent');
+            let summary = '';
+            let hasCompleted = false;
+
+            DAYS.forEach(day => {
+                const completedMeetings = weekData[day].meetings.filter(m => m.completed);
+                const completedTasks = weekData[day].tasks.filter(t => t.completed);
+                
+                if (completedMeetings.length > 0 || completedTasks.length > 0) {
+                    hasCompleted = true;
+                    summary += `${day}:\n`;
+                    
+                    completedMeetings.forEach(m => {
+                        summary += `  • ${m.name} (${m.duration}h)\n`;
+                    });
+                    
+                    completedTasks.forEach(t => {
+                        summary += `  • ${t.name} (${t.duration}h)\n`;
+                    });
+                    
+                    summary += '\n';
+                }
+            });
+
+            if (!hasCompleted) {
+                summaryContent.innerHTML = '<span class="summary-empty">Check off completed tasks to generate your weekly summary...</span>';
+            } else {
+                summaryContent.textContent = summary.trim();
+            }
+        }
+
+        function copySummary() {
+            const summaryContent = document.getElementById('summaryContent');
+            const text = summaryContent.textContent;
+            
+            if (text.includes('Check off completed tasks')) {
+                alert('No completed tasks to copy yet!');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
         function render() {
             // Render weekly view
             const weeklyView = document.getElementById('weeklyView');
@@ -489,14 +719,28 @@
 
                 const dayColumn = document.createElement('div');
                 dayColumn.className = 'day-column';
+                dayColumn.addEventListener('dragover', handleDragOver);
+                dayColumn.addEventListener('dragenter', handleDragEnter);
+                dayColumn.addEventListener('dragleave', handleDragLeave);
+                dayColumn.addEventListener('drop', (e) => handleDrop(e, day));
                 
                 let itemsHTML = '';
                 
                 // Add meetings
                 weekData[day].meetings.forEach((meeting, index) => {
+                    const completedClass = meeting.completed ? 'completed' : '';
                     itemsHTML += `
-                        <div class="item meeting">
-                            <div class="item-title">${meeting.name}</div>
+                        <div class="item meeting ${completedClass}" 
+                             draggable="true"
+                             ondragstart="handleDragStart(event, '${day}', 'meetings', ${index})"
+                             onragend="handleDragEnd(event)">
+                            <div class="item-header">
+                                <input type="checkbox" 
+                                       class="item-checkbox" 
+                                       ${meeting.completed ? 'checked' : ''}
+                                       onchange="toggleComplete('${day}', 'meetings', ${index})">
+                                <div class="item-title">${meeting.name}</div>
+                            </div>
                             <div class="item-time">${meeting.duration}h · Meeting</div>
                             <div class="item-actions">
                                 <button onclick="removeItem('${day}', 'meetings', ${index})">Remove</button>
@@ -507,9 +751,19 @@
 
                 // Add tasks
                 weekData[day].tasks.forEach((task, index) => {
+                    const completedClass = task.completed ? 'completed' : '';
                     itemsHTML += `
-                        <div class="item task">
-                            <div class="item-title">${task.name}</div>
+                        <div class="item task ${completedClass}"
+                             draggable="true"
+                             onragstart="handleDragStart(event, '${day}', 'tasks', ${index})"
+                             ondragend="handleDragEnd(event)">
+                            <div class="item-header">
+                                <input type="checkbox" 
+                                       class="item-checkbox"
+                                       ${task.completed ? 'checked' : ''}
+                                       onchange="toggleComplete('${day}', 'tasks', ${index})">
+                                <div class="item-title">${task.name}</div>
+                            </div>
                             <div class="item-time">${task.duration}h · Task</div>
                             <div class="item-actions">
                                 <button onclick="removeItem('${day}', 'tasks', ${index})">Remove</button>
@@ -564,6 +818,7 @@
 
         // Initial render
         render();
+        updateSummary();
     </script>
 </body>
 </html>
