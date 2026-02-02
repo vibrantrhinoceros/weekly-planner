@@ -3,1093 +3,683 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Task Planner</title>
+    <title>Weekly Planner</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        :root {
+            --meeting:#667eea; --task:#48bb78; --admin:#f6ad55;
+            --bg:#000; --card:#0a0a0a; --card-hover:#111;
+            --border:#222; --text:#fff; --muted:#888; --danger:#ff4444;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #000;
-            padding: 0;
-            color: #fff;
-        }
+        body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: #000;
-            min-height: 100vh;
+        /* ─── WIZARD OVERLAY ─── */
+        .overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,0.85);
+            z-index:100; display:flex; align-items:center; justify-content:center;
+            backdrop-filter:blur(4px);
         }
+        .panel {
+            background:#111; border:1px solid var(--border); border-radius:16px;
+            width:520px; max-width:92vw; overflow:hidden;
+        }
+        .progress-bar { height:3px; background:var(--border); }
+        .progress-fill { height:100%; background:var(--task); transition:width .4s cubic-bezier(.4,0,.2,1); }
+
+        .panel-body { padding:48px 40px 40px; }
+
+        .step { display:none; animation:fadeUp .3s ease; }
+        .step.active { display:block; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        .step-emoji { font-size:36px; margin-bottom:18px; display:block; }
+        .step h2 { font-size:22px; font-weight:700; margin-bottom:8px; letter-spacing:-.3px; }
+        .step > p { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
+
+        /* input rows used in wizard + settings */
+        .irow {
+            display:flex; align-items:center; gap:14px;
+            background:var(--card); border:1px solid var(--border);
+            border-radius:10px; padding:16px 18px; margin-bottom:10px;
+            transition:border-color .2s;
+        }
+        .irow:focus-within { border-color:#444; }
+        .irow .icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+        .irow .lbl { flex:1; font-size:14px; font-weight:500; }
+        .irow .lbl small { display:block; font-size:12px; color:var(--muted); font-weight:400; margin-top:2px; }
+        .irow input, .irow select {
+            width:88px; padding:9px 10px; background:#1a1a1a;
+            border:1px solid var(--border); border-radius:6px;
+            color:#fff; font-family:'DM Mono',monospace;
+            font-size:15px; font-weight:500; text-align:center;
+        }
+        .irow input:focus, .irow select:focus { outline:none; border-color:#555; }
+        .irow .unit { font-size:13px; color:var(--muted); white-space:nowrap; }
+
+        /* days toggle grid */
+        .days-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; }
+        .day-tog {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:8px; padding:13px 0; text-align:center; cursor:pointer; transition:all .2s;
+        }
+        .day-tog .dlbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+        .day-tog.on { border-color:var(--task); background:rgba(72,187,120,.08); }
+        .day-tog.on .dlbl { color:var(--task); }
+
+        /* calculated result box */
+        .calc-box {
+            background:rgba(72,187,120,.08); border:1px solid rgba(72,187,120,.25);
+            border-radius:10px; padding:16px 18px; margin-top:18px;
+            display:flex; align-items:center; gap:14px;
+        }
+        .calc-box .big { font-family:'DM Mono',monospace; font-size:26px; font-weight:700; color:var(--task); }
+        .calc-box .desc { font-size:13px; color:var(--muted); }
+        .calc-box .desc strong { color:var(--text); display:block; font-size:14px; margin-bottom:1px; }
+
+        /* nav row */
+        .nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:32px; }
+        .nav-row .indicator { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.8px; }
+        .nav-btns { display:flex; gap:10px; }
+
+        .btn-ghost {
+            background:none; border:1px solid var(--border); color:var(--muted);
+            padding:10px 22px; border-radius:6px; font-size:13px; font-weight:600;
+            cursor:pointer; font-family:inherit; transition:all .2s;
+        }
+        .btn-ghost:hover { border-color:#444; color:var(--text); }
+
+        .btn-solid {
+            background:var(--text); color:#000; border:none;
+            padding:10px 28px; border-radius:6px; font-size:13px; font-weight:700;
+            cursor:pointer; font-family:inherit; text-transform:uppercase;
+            letter-spacing:.8px; transition:all .2s;
+        }
+        .btn-solid:hover { background:#e5e5e5; transform:translateY(-1px); }
+
+        /* ─── SETTINGS ─── */
+        .settings-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:26px 32px 18px; border-bottom:1px solid var(--border);
+        }
+        .settings-header h2 { font-size:20px; font-weight:700; }
+        .close-btn {
+            background:none; border:none; color:var(--muted); font-size:22px;
+            cursor:pointer; padding:4px 8px; border-radius:6px; transition:all .2s;
+        }
+        .close-btn:hover { color:var(--text); background:var(--border); }
+        .settings-body { padding:24px 32px 32px; }
+        .settings-label {
+            font-size:11px; font-weight:700; color:var(--muted);
+            text-transform:uppercase; letter-spacing:.8px;
+            margin-bottom:10px; margin-top:22px;
+        }
+        .settings-label:first-child { margin-top:0; }
+
+        /* ─── MAIN APP ─── */
+        .app { display:none; }
+        .app.on { display:block; }
 
         .header {
-            background: #000;
-            color: #fff;
-            padding: 40px 40px 30px;
-            border-bottom: 1px solid #222;
+            background:var(--bg); padding:28px 36px;
+            border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center;
         }
-
-        .header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            letter-spacing: -1px;
+        .header h1 { font-size:30px; font-weight:700; letter-spacing:-.8px; }
+        .hdr-btns { display:flex; gap:10px; }
+        .btn-hdr {
+            background:var(--card); border:1px solid var(--border); color:var(--muted);
+            padding:9px 16px; border-radius:6px; font-size:13px; font-weight:600;
+            cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px;
+            transition:all .2s;
         }
+        .btn-hdr:hover { border-color:#444; color:var(--text); }
+        .btn-hdr.danger:hover { border-color:var(--danger); color:var(--danger); }
 
-        .content {
-            display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 0;
-            min-height: calc(100vh - 200px);
+        .layout { display:grid; grid-template-columns:380px 1fr; min-height:calc(100vh - 74px); }
+
+        /* sidebar */
+        .sidebar { border-right:1px solid var(--border); padding:32px 28px; overflow-y:auto; }
+
+        .sec-title {
+            font-size:12px; font-weight:700; color:var(--muted);
+            text-transform:uppercase; letter-spacing:1px;
+            margin-bottom:14px; display:flex; align-items:center; gap:9px;
         }
+        .sec-title svg { opacity:.7; }
 
-        .sidebar {
-            background: #000;
-            padding: 40px;
-            border-right: 1px solid #222;
+        .ig { margin-bottom:12px; }
+        .ig label { display:block; font-size:11px; font-weight:600; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+        .ig input, .ig select {
+            width:100%; padding:11px 13px; border:1px solid var(--border);
+            border-radius:6px; font-size:14px; font-family:inherit;
+            background:var(--card); color:var(--text); transition:border-color .2s;
         }
+        .ig input:focus, .ig select:focus { outline:none; border-color:#444; }
 
-        .main {
-            padding: 40px;
-            background: #000;
+        .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+        .add-btn {
+            width:100%; padding:12px; border:none; border-radius:6px;
+            font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;
+            text-transform:uppercase; letter-spacing:.8px;
+            background:var(--text); color:#000; transition:all .2s;
         }
+        .add-btn:hover { background:#e5e5e5; transform:translateY(-1px); }
 
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .divider { height:1px; background:var(--border); margin:24px 0; }
+
+        /* chart */
+        .chart-box {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:10px; padding:20px; margin-bottom:24px;
         }
+        .chart-box-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:14px; }
+        .chart-wrap { display:flex; align-items:center; justify-content:center; }
+        .chart-legend { margin-top:16px; }
+        .leg-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; }
+        .leg-left { display:flex; align-items:center; gap:9px; }
+        .leg-dot { width:11px; height:11px; border-radius:3px; }
+        .leg-name { color:var(--muted); }
+        .leg-val { font-weight:700; font-family:'DM Mono',monospace; font-size:12px; }
 
-        .section-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* stats */
+        .stats-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px 20px; }
+        .st-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
+        .st-label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+        .st-val { font-weight:700; font-family:'DM Mono',monospace; font-size:14px; }
+        .st-div { height:1px; background:var(--border); margin:7px 0; }
+        .alert { border-radius:6px; padding:11px 13px; margin-top:12px; font-size:12px; font-weight:600; }
+        .alert-warn { background:#1a0e00; border:1px solid var(--admin); color:var(--admin); }
+        .alert-ok   { background:#0a1a0a; border:1px solid var(--task);  color:var(--task); }
+
+        /* main */
+        .main-area { padding:32px 28px; overflow-y:auto; }
+        .week-grid {
+            display:grid; gap:14px; margin-bottom:36px;
         }
-
-        .input-group {
-            margin-bottom: 18px;
+        .day-col {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:10px; padding:18px; min-height:380px;
+            transition:border-color .2s, background .2s;
         }
+        .day-col.drag-over { border-color:#555; background:var(--card-hover); }
+        .day-col-hdr { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding-bottom:10px; border-bottom:2px solid var(--text); margin-bottom:12px; }
 
-        .input-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: #999;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
+        .time-wrap { background:#000; border:1px solid var(--border); border-radius:6px; padding:10px 12px; margin-bottom:16px; }
+        .time-top { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; }
+        .time-used { font-weight:600; }
+        .time-free { font-weight:700; }
+        .time-free.ok  { color:var(--text); }
+        .time-free.warn{ color:var(--admin); }
+        .time-free.over{ color:var(--danger); }
+        .tbar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+        .tbar-fill { height:100%; background:var(--text); transition:width .3s,background .3s; }
+        .tbar-fill.warn{ background:var(--admin); }
+        .tbar-fill.over{ background:var(--danger); }
 
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #333;
-            border-radius: 6px;
-            font-size: 15px;
-            font-family: inherit;
-            background: #0a0a0a;
-            color: #fff;
-            transition: all 0.2s;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: #fff;
-            background: #111;
-        }
-
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary {
-            background: #fff;
-            color: #000;
-        }
-
-        .btn-primary:hover {
-            background: #e5e5e5;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: #fff;
-            color: #000;
-            margin-top: 10px;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e5e5;
-            transform: translateY(-1px);
-        }
-
-        .btn-tertiary {
-            background: #fff;
-            color: #000;
-            margin-top: 10px;
-        }
-
-        .btn-tertiary:hover {
-            background: #e5e5e5;
-            transform: translateY(-1px);
-        }
-
-        .divider {
-            height: 1px;
-            background: #222;
-            margin: 35px 0;
-        }
-
-        .chart-container {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 30px;
-        }
-
-        .chart-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #999;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .chart-canvas-wrapper {
-            position: relative;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chart-legend {
-            margin-top: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .legend-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-        }
-
-        .legend-value {
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .weekly-view {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .day-column {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 24px;
-            min-height: 450px;
-            transition: all 0.2s;
-        }
-
-        .day-column.drag-over {
-            border-color: #fff;
-            background: #111;
-        }
-
-        .day-header {
-            font-weight: 700;
-            font-size: 14px;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 2px solid #fff;
-            color: #fff;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .time-summary {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 24px;
-            padding: 14px;
-            background: #000;
-            border-radius: 6px;
-            border: 1px solid #222;
-        }
-
-        .time-bar {
-            height: 3px;
-            background: #222;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .time-bar-fill {
-            height: 100%;
-            background: #fff;
-            transition: all 0.3s;
-        }
-
-        .time-bar-fill.warning {
-            background: #ffa500;
-        }
-
-        .time-bar-fill.danger {
-            background: #ff4444;
-        }
-
+        /* items */
         .item {
-            background: #111;
-            padding: 14px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            border-left: 3px solid #667eea;
-            font-size: 13px;
-            border: 1px solid #222;
-            border-left-width: 3px;
-            cursor: move;
-            transition: all 0.2s;
+            background:var(--card-hover); border:1px solid var(--border);
+            border-left:3px solid var(--meeting); border-radius:6px;
+            padding:11px 13px; margin-bottom:9px; cursor:grab;
+            transition:background .15s, transform .15s;
         }
+        .item:hover { background:#1e1e1e; transform:translateX(2px); }
+        .item:active { cursor:grabbing; }
+        .item.dragging { opacity:.35; }
+        .item.task  { border-left-color:var(--task); }
+        .item.admin { border-left-color:var(--admin); }
+        .item.done  { opacity:.4; }
+        .item.done .item-name { text-decoration:line-through; }
 
-        .item:hover {
-            background: #1a1a1a;
-            transform: translateX(2px);
+        .item-top { display:flex; align-items:flex-start; gap:9px; }
+        .item-cb { margin-top:2px; width:16px; height:16px; cursor:pointer; flex-shrink:0; }
+        .item-inner { flex:1; min-width:0; }
+        .item-name { font-size:14px; font-weight:600; margin-bottom:2px; }
+        .item-meta { font-size:11px; color:var(--muted); }
+        .item-rm {
+            background:none; border:none; color:var(--muted); cursor:pointer;
+            font-size:10px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.5px; padding:3px 0 0 24px; font-family:inherit; transition:color .2s;
         }
+        .item-rm:hover { color:var(--danger); }
 
-        .item.dragging {
-            opacity: 0.4;
-        }
-
-        .item.meeting {
-            border-left-color: #667eea;
-        }
-
-        .item.task {
-            border-left-color: #48bb78;
-        }
-
-        .item.admin {
-            border-left-color: #f6ad55;
-        }
-
-        .item.completed {
-            opacity: 0.4;
-        }
-
-        .item.completed .item-title {
-            text-decoration: line-through;
-        }
-
-        .item-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 6px;
-        }
-
-        .item-checkbox {
-            margin-top: 3px;
-            cursor: pointer;
-            width: 17px;
-            height: 17px;
-        }
-
-        .item-content {
-            flex: 1;
-        }
-
-        .item-title {
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .item-time {
-            font-size: 11px;
-            color: #999;
-        }
-
-        .item-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-            margin-left: 27px;
-        }
-
-        .item-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 10px;
-            padding: 4px 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            transition: color 0.2s;
-            font-weight: 600;
-        }
-
-        .item-actions button:hover {
-            color: #ff4444;
-        }
-
-        .stats {
-            background: #0a0a0a;
-            padding: 24px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            border: 1px solid #222;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            font-size: 13px;
-        }
-
-        .stat-label {
-            color: #999;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-weight: 700;
-            color: #fff;
-            font-size: 15px;
-        }
-
-        .warning-box {
-            background: #1a0a0a;
-            border: 1px solid #ff4444;
-            border-radius: 6px;
-            padding: 14px;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #ff4444;
-            font-weight: 600;
-        }
-
-        .success-box {
-            background: #0a1a0a;
-            border: 1px solid #48bb78;
-            border-radius: 6px;
-            padding: 14px;
-            margin-top: 16px;
-            font-size: 12px;
-            color: #48bb78;
-            font-weight: 600;
-        }
-
-        .summary-section {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 40px;
-            margin-top: 40px;
-        }
-
-        .summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .summary-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-
+        /* summary */
+        .summary-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:28px; }
+        .summary-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .summary-top h3 { font-size:18px; font-weight:700; letter-spacing:-.3px; }
         .copy-btn {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
+            background:var(--text); color:#000; border:none; padding:9px 18px;
+            border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;
+            font-family:inherit; text-transform:uppercase; letter-spacing:.8px; transition:all .2s;
         }
+        .copy-btn:hover { background:#e5e5e5; transform:translateY(-1px); }
+        .summary-out {
+            background:#000; border:1px solid var(--border); border-radius:6px;
+            padding:22px; font-family:'DM Mono',monospace; font-size:13px;
+            line-height:1.9; color:var(--text); white-space:pre-wrap; min-height:110px;
+        }
+        .summary-ph { color:#555; font-style:italic; font-family:'DM Sans',sans-serif; }
 
-        .copy-btn:hover {
-            background: #e5e5e5;
-            transform: translateY(-1px);
-        }
-
-        .summary-content {
-            background: #000;
-            border: 1px solid #222;
-            border-radius: 6px;
-            padding: 30px;
-            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 2;
-            color: #fff;
-            white-space: pre-wrap;
-            min-height: 150px;
-        }
-
-        .summary-empty {
-            color: #666;
-            font-style: italic;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+        .hidden { display:none !important; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Weekly Planner</h1>
-        </div>
 
-        <div class="content">
-            <div class="sidebar">
-                <div class="chart-container">
-                    <div class="chart-title">Time Breakdown</div>
-                    <div class="chart-canvas-wrapper">
-                        <canvas id="pieChart" width="200" height="200"></canvas>
-                    </div>
-                    <div class="chart-legend" id="chartLegend"></div>
-                </div>
+<!-- ── WIZARD ── -->
+<div class="overlay" id="wizardOverlay">
+  <div class="panel">
+    <div class="progress-bar"><div class="progress-fill" id="wProg" style="width:25%"></div></div>
+    <div class="panel-body">
 
-                <div class="section-title">
-                    <span class="section-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </span>
-                    Add Meeting
-                </div>
-                <div class="input-group">
-                    <label>Meeting Name</label>
-                    <input type="text" id="meetingName" placeholder="Team standup">
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Day</label>
-                        <select id="meetingDay">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Hours</label>
-                        <input type="number" id="meetingDuration" value="0.5" step="0.5" min="0.5">
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="addMeeting()">Add Meeting</button>
+      <div class="step active" id="s1">
+        <span class="step-emoji">👋</span>
+        <h2>Welcome to Weekly Planner</h2>
+        <p>Let's set up your planner in about 30 seconds. A few quick questions about how you work — and we'll calculate your real available hours.</p>
+        <div class="nav-row"><span class="indicator">1 of 4</span><button class="btn-solid" onclick="goStep(2)">Let's Go</button></div>
+      </div>
 
-                <div class="divider"></div>
+      <div class="step" id="s2">
+        <span class="step-emoji">🕘</span>
+        <h2>When do you work?</h2>
+        <p>Set your typical start and end times. We'll subtract breaks in the next step.</p>
+        <div class="irow"><div class="icon">🌅</div><div class="lbl">Day starts at<small>Usual start time</small></div><input type="time" id="wStart" value="09:00"></div>
+        <div class="irow"><div class="icon">🌆</div><div class="lbl">Day ends at<small>Usual end time</small></div><input type="time" id="wEnd" value="17:00"></div>
+        <div class="nav-row"><span class="indicator">2 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(1)">Back</button><button class="btn-solid" onclick="goStep(3)">Next</button></div></div>
+      </div>
 
-                <div class="section-title">
-                    <span class="section-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 19l7 2-7-18-7 18 7-2zm0 0v-8"></path>
-                        </svg>
-                    </span>
-                    Add Task
-                </div>
-                <div class="input-group">
-                    <label>Task Name</label>
-                    <input type="text" id="taskName" placeholder="Write project proposal">
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Day</label>
-                        <select id="taskDay">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Hours</label>
-                        <input type="number" id="taskDuration" value="0.5" step="0.5" min="0.5">
-                    </div>
-                </div>
-                <button class="btn btn-secondary" onclick="addTask()">Add Task</button>
+      <div class="step" id="s3">
+        <span class="step-emoji">☕</span>
+        <h2>How do you take breaks?</h2>
+        <p>Be real here — a planner only works if the math is honest.</p>
+        <div class="irow"><div class="icon">🍽️</div><div class="lbl">Lunch break<small>How long, usually?</small></div><input type="number" id="wLunch" value="30" min="0" max="120" step="5"><span class="unit">min</span></div>
+        <div class="irow"><div class="icon">🛋️</div><div class="lbl">Short breaks per day<small>Coffee, walk, stretch…</small></div><input type="number" id="wBreakCt" value="2" min="0" max="10" step="1"><span class="unit">breaks</span></div>
+        <div class="irow"><div class="icon">⏱️</div><div class="lbl">Each break is<small>Average length</small></div><input type="number" id="wBreakLen" value="15" min="5" max="60" step="5"><span class="unit">min</span></div>
+        <div class="nav-row"><span class="indicator">3 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(2)">Back</button><button class="btn-solid" onclick="goStep(4)">Next</button></div></div>
+      </div>
 
-                <div class="divider"></div>
+      <div class="step" id="s4">
+        <span class="step-emoji">📅</span>
+        <h2>Which days do you work?</h2>
+        <p>Tap to toggle the days you plan around.</p>
+        <div class="days-grid" id="wDaysGrid"></div>
+        <div class="calc-box"><div class="big" id="wCalcNum">32.5h</div><div class="desc"><strong>Available this week</strong>After lunch &amp; breaks</div></div>
+        <div class="nav-row"><span class="indicator">4 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(3)">Back</button><button class="btn-solid" onclick="wizardDone()">Start Planning</button></div></div>
+      </div>
 
-                <div class="section-title">
-                    <span class="section-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                    </span>
-                    Add Admin Time
-                </div>
-                <div class="input-group">
-                    <label>Description</label>
-                    <input type="text" id="adminName" placeholder="Email, scheduling, etc.">
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Day</label>
-                        <select id="adminDay">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Hours</label>
-                        <input type="number" id="adminDuration" value="0.5" step="0.5" min="0.5">
-                    </div>
-                </div>
-                <button class="btn btn-tertiary" onclick="addAdmin()">Add Admin</button>
+    </div>
+  </div>
+</div>
 
-                <div id="weekStats" class="stats" style="margin-top: 35px;">
-                    <!-- Stats will be inserted here -->
-                </div>
-            </div>
+<!-- ── SETTINGS ── -->
+<div class="overlay hidden" id="settingsOverlay">
+  <div class="panel" style="max-height:88vh;overflow-y:auto;">
+    <div class="settings-header"><h2>Settings</h2><button class="close-btn" onclick="closeSettings()">✕</button></div>
+    <div class="settings-body">
+      <div class="settings-label">Work Hours</div>
+      <div class="irow"><div class="icon">🌅</div><div class="lbl">Day starts at</div><input type="time" id="sStart"></div>
+      <div class="irow"><div class="icon">🌆</div><div class="lbl">Day ends at</div><input type="time" id="sEnd"></div>
+      <div class="settings-label">Breaks</div>
+      <div class="irow"><div class="icon">🍽️</div><div class="lbl">Lunch break</div><input type="number" id="sLunch" min="0" max="120" step="5"><span class="unit">min</span></div>
+      <div class="irow"><div class="icon">🛋️</div><div class="lbl">Short breaks per day</div><input type="number" id="sBreakCt" min="0" max="10" step="1"><span class="unit">breaks</span></div>
+      <div class="irow"><div class="icon">⏱️</div><div class="lbl">Each break is</div><input type="number" id="sBreakLen" min="5" max="60" step="5"><span class="unit">min</span></div>
+      <div class="settings-label">Work Days</div>
+      <div class="days-grid" id="sDaysGrid"></div>
+      <div class="calc-box"><div class="big" id="sCalcNum">32.5h</div><div class="desc"><strong>Available this week</strong>After lunch &amp; breaks</div></div>
+      <button class="btn-solid" style="width:100%;margin-top:24px;" onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
 
-            <div class="main">
-                <div class="weekly-view" id="weeklyView">
-                    <!-- Days will be inserted here -->
-                </div>
+<!-- ── APP ── -->
+<div class="app" id="app">
+  <div class="header">
+    <h1>Weekly Planner</h1>
+    <div class="hdr-btns">
+      <button class="btn-hdr" onclick="openSettings()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="btn-hdr danger" onclick="resetWeek()">Reset Week</button>
+    </div>
+  </div>
 
-                <div class="summary-section">
-                    <div class="summary-header">
-                        <h2 class="summary-title">Weekly Summary</h2>
-                        <button class="copy-btn" onclick="copySummary()">Copy to Clipboard</button>
-                    </div>
-                    <div class="summary-content" id="summaryContent">
-                        <span class="summary-empty">Check off completed items to generate your weekly summary...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="chart-box">
+        <div class="chart-box-title">Time Breakdown</div>
+        <div class="chart-wrap"><canvas id="pieChart" width="170" height="170"></canvas></div>
+        <div class="chart-legend" id="chartLeg"></div>
+      </div>
+
+      <!-- Meeting -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Meeting</div>
+      <div class="ig"><label>Name</label><input type="text" id="mName" placeholder="Team standup"></div>
+      <div class="row2">
+        <div class="ig"><label>Day</label><select id="mDay"></select></div>
+        <div class="ig"><label>Hours</label><input type="number" id="mDur" value="0.5" step="0.5" min="0.5"></div>
+      </div>
+      <button class="add-btn" onclick="addItem('meetings')">Add Meeting</button>
+      <div class="divider"></div>
+
+      <!-- Task -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7 2-7-18-7 18 7-2zm0 0v-8"/></svg> Task</div>
+      <div class="ig"><label>Name</label><input type="text" id="tName" placeholder="Write proposal"></div>
+      <div class="row2">
+        <div class="ig"><label>Day</label><select id="tDay"></select></div>
+        <div class="ig"><label>Hours</label><input type="number" id="tDur" value="0.5" step="0.5" min="0.5"></div>
+      </div>
+      <button class="add-btn" onclick="addItem('tasks')">Add Task</button>
+      <div class="divider"></div>
+
+      <!-- Admin -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Admin</div>
+      <div class="ig"><label>Description</label><input type="text" id="aName" placeholder="Email, scheduling…"></div>
+      <div class="row2">
+        <div class="ig"><label>Day</label><select id="aDay"></select></div>
+        <div class="ig"><label>Hours</label><input type="number" id="aDur" value="0.5" step="0.5" min="0.5"></div>
+      </div>
+      <button class="add-btn" onclick="addItem('admin')">Add Admin</button>
+      <div class="divider"></div>
+
+      <div class="stats-box" id="statsBox"></div>
     </div>
 
-    <script>
-        const WORK_HOURS_PER_DAY = 6.5;
-        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        
-        let weekData = {
-            Monday: { meetings: [], tasks: [], admin: [] },
-            Tuesday: { meetings: [], tasks: [], admin: [] },
-            Wednesday: { meetings: [], tasks: [], admin: [] },
-            Thursday: { meetings: [], tasks: [], admin: [] },
-            Friday: { meetings: [], tasks: [], admin: [] }
+    <div class="main-area">
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="summary-box">
+        <div class="summary-top"><h3>Weekly Summary</h3><button class="copy-btn" onclick="copySummary()">Copy</button></div>
+        <div class="summary-out" id="summaryOut"><span class="summary-ph">Check off completed items to build your weekly summary…</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let cfg = { start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15, days:['Monday','Tuesday','Wednesday','Thursday','Friday'] };
+let data = {};
+let drag = null;
+
+/* ── helpers ── */
+function dayHours() {
+    const [sh,sm] = cfg.start.split(':').map(Number);
+    const [eh,em] = cfg.end.split(':').map(Number);
+    return Math.max(0, ((eh*60+em)-(sh*60+sm)) - cfg.lunch - cfg.breakCt*cfg.breakLen) / 60;
+}
+function weekHours() { return dayHours() * cfg.days.length; }
+function ensureData() { cfg.days.forEach(d => { if(!data[d]) data[d]={meetings:[],tasks:[],admin:[]}; }); }
+function save() { localStorage.setItem('wp_cfg', JSON.stringify(cfg)); localStorage.setItem('wp_data', JSON.stringify(data)); }
+
+/* ── boot ── */
+(function boot() {
+    const c = localStorage.getItem('wp_cfg');
+    if (c) {
+        cfg  = JSON.parse(c);
+        data = JSON.parse(localStorage.getItem('wp_data') || '{}');
+        ensureData();
+        document.getElementById('wizardOverlay').classList.add('hidden');
+        showApp();
+    } else {
+        renderDaysToggle('wDaysGrid');
+        updCalc('wCalcNum');
+    }
+})();
+
+/* ── days toggle ── */
+function renderDaysToggle(id) {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    ALL_DAYS.forEach(d => {
+        const on = cfg.days.includes(d);
+        const t = document.createElement('div');
+        t.className = 'day-tog' + (on ? ' on' : '');
+        t.innerHTML = `<div class="dlbl">${d.slice(0,3)}</div>`;
+        t.onclick = () => {
+            if (cfg.days.includes(d)) { if (cfg.days.length > 1) cfg.days = cfg.days.filter(x=>x!==d); }
+            else { cfg.days.push(d); cfg.days.sort((a,b)=>ALL_DAYS.indexOf(a)-ALL_DAYS.indexOf(b)); }
+            renderDaysToggle(id);
+            updCalc(id === 'wDaysGrid' ? 'wCalcNum' : 'sCalcNum');
         };
+        el.appendChild(t);
+    });
+}
+function updCalc(id) { document.getElementById(id).textContent = weekHours().toFixed(1) + 'h'; }
 
-        let draggedItem = null;
-        let draggedFrom = null;
+/* ── wizard ── */
+function goStep(n) {
+    // pull values when leaving a step
+    if (n >= 3) { cfg.start = document.getElementById('wStart').value; cfg.end = document.getElementById('wEnd').value; }
+    if (n >= 4) { cfg.lunch = +document.getElementById('wLunch').value||30; cfg.breakCt = +document.getElementById('wBreakCt').value||0; cfg.breakLen = +document.getElementById('wBreakLen').value||15; updCalc('wCalcNum'); }
 
-        function addMeeting() {
-            const name = document.getElementById('meetingName').value;
-            const day = document.getElementById('meetingDay').value;
-            const duration = parseFloat(document.getElementById('meetingDuration').value);
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('s'+n).classList.add('active');
+    document.getElementById('wProg').style.width = (n*25)+'%';
+}
 
-            if (!name || !duration) {
-                alert('Please fill in meeting name and duration');
-                return;
-            }
+function wizardDone() { ensureData(); save(); document.getElementById('wizardOverlay').classList.add('hidden'); showApp(); }
 
-            weekData[day].meetings.push({ name, duration, completed: false });
-            
-            document.getElementById('meetingName').value = '';
-            document.getElementById('meetingDuration').value = '0.5';
-            
-            render();
-        }
+/* ── settings ── */
+function openSettings() {
+    document.getElementById('sStart').value    = cfg.start;
+    document.getElementById('sEnd').value      = cfg.end;
+    document.getElementById('sLunch').value    = cfg.lunch;
+    document.getElementById('sBreakCt').value  = cfg.breakCt;
+    document.getElementById('sBreakLen').value = cfg.breakLen;
+    renderDaysToggle('sDaysGrid');
+    updCalc('sCalcNum');
+    document.getElementById('settingsOverlay').classList.remove('hidden');
+}
+function closeSettings() { document.getElementById('settingsOverlay').classList.add('hidden'); }
+function saveSettings() {
+    cfg.start   = document.getElementById('sStart').value;
+    cfg.end     = document.getElementById('sEnd').value;
+    cfg.lunch   = +document.getElementById('sLunch').value||30;
+    cfg.breakCt = +document.getElementById('sBreakCt').value||0;
+    cfg.breakLen= +document.getElementById('sBreakLen').value||15;
+    ensureData(); save(); closeSettings(); render();
+}
 
-        function addTask() {
-            const name = document.getElementById('taskName').value;
-            const day = document.getElementById('taskDay').value;
-            const duration = parseFloat(document.getElementById('taskDuration').value);
+/* ── add / remove ── */
+const FLDS = {
+    meetings:{n:'mName',d:'mDay',dur:'mDur'},
+    tasks:   {n:'tName',d:'tDay',dur:'tDur'},
+    admin:   {n:'aName',d:'aDay',dur:'aDur'}
+};
+function addItem(type) {
+    const f=FLDS[type];
+    const name=document.getElementById(f.n).value.trim();
+    const day =document.getElementById(f.d).value;
+    const dur =parseFloat(document.getElementById(f.dur).value);
+    if (!name||!dur) return;
+    data[day][type].push({name,duration:dur,completed:false});
+    document.getElementById(f.n).value='';
+    document.getElementById(f.dur).value='0.5';
+    save(); render();
+}
+function removeItem(day,type,i) { data[day][type].splice(i,1); save(); render(); }
+function toggleDone(day,type,i) { data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
 
-            if (!name || !duration) {
-                alert('Please fill in task name and duration');
-                return;
-            }
+/* ── drag ── */
+function dStart(e,day,type,i) { drag={day,type,i}; e.currentTarget.classList.add('dragging'); }
+function dEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.day-col').forEach(c=>c.classList.remove('drag-over')); }
+function dOver(e) { e.preventDefault(); }
+function dEnter(e) { e.currentTarget.classList.add('drag-over'); }
+function dLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dDrop(e,target) {
+    e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+    if (!drag||drag.day===target) return;
+    const item=data[drag.day][drag.type].splice(drag.i,1)[0];
+    data[target][drag.type].push(item);
+    drag=null; save(); render();
+}
 
-            weekData[day].tasks.push({ name, duration, completed: false });
-            
-            document.getElementById('taskName').value = '';
-            document.getElementById('taskDuration').value = '0.5';
-            
-            render();
-        }
+/* ── populate selects ── */
+function fillSelects() {
+    ['mDay','tDay','aDay'].forEach(id => {
+        const s=document.getElementById(id);
+        s.innerHTML='';
+        cfg.days.forEach(d => s.innerHTML+=`<option value="${d}">${d}</option>`);
+    });
+}
 
-        function addAdmin() {
-            const name = document.getElementById('adminName').value;
-            const day = document.getElementById('adminDay').value;
-            const duration = parseFloat(document.getElementById('adminDuration').value);
+/* ── RENDER ── */
+function showApp() { document.getElementById('app').classList.add('on'); fillSelects(); render(); }
 
-            if (!name || !duration) {
-                alert('Please fill in admin description and duration');
-                return;
-            }
+function render() { renderGrid(); renderPie(); renderStats(); renderSummary(); }
 
-            weekData[day].admin.push({ name, duration, completed: false });
-            
-            document.getElementById('adminName').value = '';
-            document.getElementById('adminDuration').value = '0.5';
-            
-            render();
-        }
+function renderGrid() {
+    const g=document.getElementById('weekGrid');
+    g.style.gridTemplateColumns = `repeat(${cfg.days.length},1fr)`;
+    g.innerHTML='';
+    const dh=dayHours();
 
-        function toggleComplete(day, type, index) {
-            weekData[day][type][index].completed = !weekData[day][type][index].completed;
-            render();
-            updateSummary();
-        }
+    cfg.days.forEach(day => {
+        const M=data[day]?.meetings||[];
+        const T=data[day]?.tasks||[];
+        const A=data[day]?.admin||[];
+        const used=[...M,...T,...A].reduce((s,i)=>s+i.duration,0);
+        const free=dh-used;
+        const pct=Math.min((used/dh)*100,100);
+        const barCls=used>dh?'over':pct>80?'warn':'';
+        const freeCls=free<0?'over':free<=dh*.2?'warn':'ok';
 
-        function removeItem(day, type, index) {
-            weekData[day][type].splice(index, 1);
-            render();
-            updateSummary();
-        }
+        const col=document.createElement('div');
+        col.className='day-col';
+        col.ondragover=dOver; col.ondragenter=dEnter; col.ondragleave=dLeave;
+        col.ondrop=e=>dDrop(e,day);
 
-        function handleDragStart(e, day, type, index) {
-            draggedItem = { day, type, index };
-            draggedFrom = day;
-            e.target.classList.add('dragging');
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            document.querySelectorAll('.day-column').forEach(col => {
-                col.classList.remove('drag-over');
-            });
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            return false;
-        }
-
-        function handleDragEnter(e) {
-            if (e.currentTarget.classList.contains('day-column')) {
-                e.currentTarget.classList.add('drag-over');
-            }
-        }
-
-        function handleDragLeave(e) {
-            if (e.currentTarget.classList.contains('day-column')) {
-                e.currentTarget.classList.remove('drag-over');
-            }
-        }
-
-        function handleDrop(e, targetDay) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-            
-            if (!draggedItem || draggedFrom === targetDay) return;
-
-            const item = weekData[draggedFrom][draggedItem.type][draggedItem.index];
-            weekData[draggedFrom][draggedItem.type].splice(draggedItem.index, 1);
-            weekData[targetDay][draggedItem.type].push(item);
-            
-            draggedItem = null;
-            draggedFrom = null;
-            
-            render();
-        }
-
-        function calculateDayHours(day) {
-            const meetingHours = weekData[day].meetings.reduce((sum, m) => sum + m.duration, 0);
-            const taskHours = weekData[day].tasks.reduce((sum, t) => sum + t.duration, 0);
-            const adminHours = weekData[day].admin.reduce((sum, a) => sum + a.duration, 0);
-            const totalCommitted = meetingHours + taskHours + adminHours;
-            const available = WORK_HOURS_PER_DAY - totalCommitted;
-            
-            return { meetingHours, taskHours, adminHours, totalCommitted, available };
-        }
-
-        function calculateWeekStats() {
-            let totalMeetings = 0;
-            let totalTasks = 0;
-            let totalAdmin = 0;
-            let totalCommitted = 0;
-            let overcommittedDays = 0;
-
-            DAYS.forEach(day => {
-                const stats = calculateDayHours(day);
-                totalMeetings += stats.meetingHours;
-                totalTasks += stats.taskHours;
-                totalAdmin += stats.adminHours;
-                totalCommitted += stats.totalCommitted;
-                if (stats.available < 0) overcommittedDays++;
-            });
-
-            const totalAvailable = WORK_HOURS_PER_DAY * 5;
-
-            return {
-                totalMeetings,
-                totalTasks,
-                totalAdmin,
-                totalCommitted,
-                totalAvailable,
-                overcommittedDays
-            };
-        }
-
-        function drawPieChart() {
-            const canvas = document.getElementById('pieChart');
-            const ctx = canvas.getContext('2d');
-            const stats = calculateWeekStats();
-            
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = 80;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const total = stats.totalCommitted;
-            if (total === 0) {
-                ctx.fillStyle = '#222';
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                document.getElementById('chartLegend').innerHTML = '<div style="color: #666; text-align: center; font-size: 12px;">No time logged yet</div>';
-                return;
-            }
-            
-            const data = [
-                { label: 'Meetings', value: stats.totalMeetings, color: '#667eea' },
-                { label: 'Tasks', value: stats.totalTasks, color: '#48bb78' },
-                { label: 'Admin', value: stats.totalAdmin, color: '#f6ad55' }
-            ].filter(d => d.value > 0);
-            
-            let currentAngle = -Math.PI / 2;
-            
-            data.forEach(item => {
-                const sliceAngle = (item.value / total) * 2 * Math.PI;
-                
-                ctx.fillStyle = item.color;
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-                ctx.closePath();
-                ctx.fill();
-                
-                currentAngle += sliceAngle;
-            });
-            
-            // Draw legend
-            let legendHTML = '';
-            data.forEach(item => {
-                const percentage = ((item.value / total) * 100).toFixed(0);
-                legendHTML += `
-                    <div class="legend-item">
-                        <div class="legend-label">
-                            <div class="legend-color" style="background: ${item.color};"></div>
-                            <span style="color: #999;">${item.label}</span>
-                        </div>
-                        <span class="legend-value">${item.value.toFixed(1)}h (${percentage}%)</span>
-                    </div>
-                `;
-            });
-            document.getElementById('chartLegend').innerHTML = legendHTML;
-        }
-
-        function updateSummary() {
-            const summaryContent = document.getElementById('summaryContent');
-            let summary = '';
-            let hasCompleted = false;
-            
-            let totalHours = 0;
-            const completedByDay = {};
-
-            DAYS.forEach(day => {
-                const dayItems = [];
-                
-                weekData[day].meetings.filter(m => m.completed).forEach(m => {
-                    dayItems.push({ name: m.name, duration: m.duration, type: 'Meeting' });
-                    totalHours += m.duration;
-                    hasCompleted = true;
-                });
-                
-                weekData[day].tasks.filter(t => t.completed).forEach(t => {
-                    dayItems.push({ name: t.name, duration: t.duration, type: 'Task' });
-                    totalHours += t.duration;
-                    hasCompleted = true;
-                });
-                
-                weekData[day].admin.filter(a => a.completed).forEach(a => {
-                    dayItems.push({ name: a.name, duration: a.duration, type: 'Admin' });
-                    totalHours += a.duration;
-                    hasCompleted = true;
-                });
-                
-                if (dayItems.length > 0) {
-                    completedByDay[day] = dayItems;
-                }
-            });
-
-            if (!hasCompleted) {
-                summaryContent.innerHTML = '<span class="summary-empty">Check off completed items to generate your weekly summary...</span>';
-                return;
-            }
-
-            summary = 'WEEKLY SUMMARY\n';
-            summary += '═══════════════════════════════════════\n\n';
-
-            Object.keys(completedByDay).forEach(day => {
-                summary += `${day.toUpperCase()}\n`;
-                summary += '───────────────────────────────────────\n';
-                
-                completedByDay[day].forEach(item => {
-                    summary += `  • ${item.name} (${item.duration}h - ${item.type})\n`;
-                });
-                
-                summary += '\n';
-            });
-
-            const stats = calculateWeekStats();
-            const completedMeetings = DAYS.reduce((sum, day) => 
-                sum + weekData[day].meetings.filter(m => m.completed).reduce((s, m) => s + m.duration, 0), 0);
-            const completedTasks = DAYS.reduce((sum, day) => 
-                sum + weekData[day].tasks.filter(t => t.completed).reduce((s, t) => s + t.duration, 0), 0);
-            const completedAdmin = DAYS.reduce((sum, day) => 
-                sum + weekData[day].admin.filter(a => a.completed).reduce((s, a) => s + a.duration, 0), 0);
-            
-            summary += 'HOURS BREAKDOWN\n';
-            summary += '───────────────────────────────────────\n';
-            summary += `  Meetings:        ${completedMeetings.toFixed(1)}h\n`;
-            summary += `  Tasks:           ${completedTasks.toFixed(1)}h\n`;
-            summary += `  Admin:           ${completedAdmin.toFixed(1)}h\n`;
-            summary += `  ─────────────────────────────────────\n`;
-            summary += `  Total:           ${totalHours.toFixed(1)}h\n`;
-
-            summaryContent.textContent = summary;
-        }
-
-        function copySummary() {
-            const summaryContent = document.getElementById('summaryContent');
-            const text = summaryContent.textContent;
-            
-            if (text.includes('Check off completed')) {
-                alert('No completed items to copy yet!');
-                return;
-            }
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                }, 2000);
-            });
-        }
-
-        function render() {
-            const weeklyView = document.getElementById('weeklyView');
-            weeklyView.innerHTML = '';
-
-            DAYS.forEach(day => {
-                const dayStats = calculateDayHours(day);
-                const percentFilled = (dayStats.totalCommitted / WORK_HOURS_PER_DAY) * 100;
-                
-                let barClass = '';
-                if (percentFilled > 100) barClass = 'danger';
-                else if (percentFilled > 80) barClass = 'warning';
-
-                const dayColumn = document.createElement('div');
-                dayColumn.className = 'day-column';
-                dayColumn.addEventListener('dragover', handleDragOver);
-                dayColumn.addEventListener('dragenter', handleDragEnter);
-                dayColumn.addEventListener('dragleave', handleDragLeave);
-                dayColumn.addEventListener('drop', (e) => handleDrop(e, day));
-                
-                let itemsHTML = '';
-                
-                // Add meetings
-                weekData[day].meetings.forEach((meeting, index) => {
-                    const completedClass = meeting.completed ? 'completed' : '';
-                    itemsHTML += `
-                        <div class="item meeting ${completedClass}" 
-                             draggable="true"
-                             ondragstart="handleDragStart(event, '${day}', 'meetings', ${index})"
-                             ondragend="handleDragEnd(event)">
-                            <div class="item-header">
-                                <input type="checkbox" 
-                                       class="item-checkbox" 
-                                       ${meeting.completed ? 'checked' : ''}
-                                       onchange="toggleComplete('${day}', 'meetings', ${index})">
-                                <div class="item-content">
-                                    <div class="item-title">${meeting.name}</div>
-                                    <div class="item-time">${meeting.duration}h · Meeting</div>
-                                </div>
-                            </div>
-                            <div class="item-actions">
-                                <button onclick="removeItem('${day}', 'meetings', ${index})">Remove</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Add tasks
-                weekData[day].tasks.forEach((task, index) => {
-                    const completedClass = task.completed ? 'completed' : '';
-                    itemsHTML += `
-                        <div class="item task ${completedClass}"
-                             draggable="true"
-                             ondragstart="handleDragStart(event, '${day}', 'tasks', ${index})"
-                             ondragend="handleDragEnd(event)">
-                            <div class="item-header">
-                                <input type="checkbox" 
-                                       class="item-checkbox"
-                                       ${task.completed ? 'checked' : ''}
-                                       onchange="toggleComplete('${day}', 'tasks', ${index})">
-                                <div class="item-content">
-                                    <div class="item-title">${task.name}</div>
-                                    <div class="item-time">${task.duration}h · Task</div>
-                                </div>
-                            </div>
-                            <div class="item-actions">
-                                <button onclick="removeItem('${day}', 'tasks', ${index})">Remove</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Add admin
-                weekData[day].admin.forEach((admin, index) => {
-                    const completedClass = admin.completed ? 'completed' : '';
-                    itemsHTML += `
-                        <div class="item admin ${completedClass}"
-                             draggable="true"
-                             ondragstart="handleDragStart(event, '${day}', 'admin', ${index})"
-                             ondragend="handleDragEnd(event)">
-                            <div class="item-header">
-                                <input type="checkbox" 
-                                       class="item-checkbox"
-                                       ${admin.completed ? 'checked' : ''}
-                                       onchange="toggleComplete('${day}', 'admin', ${index})">
-                                <div class="item-content">
-                                    <div class="item-title">${admin.name}</div>
-                                    <div class="item-time">${admin.duration}h · Admin</div>
-                                </div>
-                            </div>
-                            <div class="item-actions">
-                                <button onclick="removeItem('${day}', 'admin', ${index})">Remove</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                dayColumn.innerHTML = `
-                    <div class="day-header">${day}</div>
-                    <div class="time-summary">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                            <span style="font-weight: 600;">Committed: ${dayStats.totalCommitted.toFixed(1)}h</span>
-                            <span style="${dayStats.available < 0 ? 'color: #ff4444; font-weight: 700;' : 'color: #fff; font-weight: 600;'}">
-                                ${dayStats.available >= 0 ? dayStats.available.toFixed(1) + 'h free' : Math.abs(dayStats.available).toFixed(1) + 'h over'}
-                            </span>
-                        </div>
-                        <div class="time-bar">
-                            <div class="time-bar-fill ${barClass}" style="width: ${Math.min(percentFilled, 100)}%"></div>
-                        </div>
-                    </div>
-                    ${itemsHTML}
-                `;
-
-                weeklyView.appendChild(dayColumn);
-            });
-
-            // Render stats
-            const weekStats = calculateWeekStats();
-            const statsHTML = `
-                <div class="stat-row">
-                    <span class="stat-label">Meeting Time</span>
-                    <span class="stat-value">${weekStats.totalMeetings.toFixed(1)}h</span>
+        let items='';
+        const row=(arr,type,cls)=>arr.forEach((it,i)=>{
+            const label = type==='meetings'?'Meeting':type==='tasks'?'Task':'Admin';
+            items+=`<div class="item ${cls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','${type}',${i})" ondragend="dEnd(event)">
+                <div class="item-top">
+                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','${type}',${i})">
+                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}</div></div>
                 </div>
-                <div class="stat-row">
-                    <span class="stat-label">Task Time</span>
-                    <span class="stat-value">${weekStats.totalTasks.toFixed(1)}h</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Admin Time</span>
-                    <span class="stat-value">${weekStats.totalAdmin.toFixed(1)}h</span>
-                </div>
-                <div class="stat-row" style="padding-top: 12px; border-top: 1px solid #222; margin-top: 8px;">
-                    <span class="stat-label">Total Week</span>
-                    <span class="stat-value">${weekStats.totalCommitted.toFixed(1)}h / ${weekStats.totalAvailable}h</span>
-                </div>
-                ${weekStats.overcommittedDays > 0 
-                    ? `<div class="warning-box">⚠️ ${weekStats.overcommittedDays} day(s) overbooked</div>`
-                    : weekStats.totalCommitted > 0 
-                        ? `<div class="success-box">✓ Week balanced</div>`
-                        : ''
-                }
-            `;
-            document.getElementById('weekStats').innerHTML = statsHTML;
-            
-            drawPieChart();
-        }
+                <button class="item-rm" onclick="removeItem('${day}','${type}',${i})">Remove</button>
+            </div>`;
+        });
+        row(M,'meetings','');
+        row(T,'tasks','task');
+        row(A,'admin','admin');
 
-        // Initial render
-        render();
-        updateSummary();
-    </script>
+        col.innerHTML=`
+            <div class="day-col-hdr">${day}</div>
+            <div class="time-wrap">
+                <div class="time-top"><span class="time-used">${used.toFixed(1)}h used</span><span class="time-free ${freeCls}">${free>=0?free.toFixed(1)+'h free':Math.abs(free).toFixed(1)+'h over'}</span></div>
+                <div class="tbar"><div class="tbar-fill ${barCls}" style="width:${pct}%"></div></div>
+            </div>${items}`;
+        g.appendChild(col);
+    });
+}
+
+function renderPie() {
+    const c=document.getElementById('pieChart'), ctx=c.getContext('2d');
+    ctx.clearRect(0,0,c.width,c.height);
+    let M=0,T=0,A=0;
+    cfg.days.forEach(d=>{
+        (data[d]?.meetings||[]).forEach(i=>M+=i.duration);
+        (data[d]?.tasks||[]).forEach(i=>T+=i.duration);
+        (data[d]?.admin||[]).forEach(i=>A+=i.duration);
+    });
+    const tot=M+T+A;
+    const cx=c.width/2, cy=c.height/2, r=65;
+
+    if(!tot) {
+        ctx.strokeStyle='#222'; ctx.lineWidth=14;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+        document.getElementById('chartLeg').innerHTML='<div style="color:#555;text-align:center;font-size:12px;padding-top:6px;">No time logged yet</div>';
+        return;
+    }
+
+    const slices=[
+        {label:'Meetings',val:M,color:'#667eea'},
+        {label:'Tasks',val:T,color:'#48bb78'},
+        {label:'Admin',val:A,color:'#f6ad55'}
+    ].filter(s=>s.val>0);
+
+    let ang=-Math.PI/2;
+    slices.forEach(s=>{
+        const sw=(s.val/tot)*Math.PI*2;
+        ctx.fillStyle=s.color;
+        ctx.beginPath(); ctx.moveTo(cx,cy);
+        ctx.arc(cx,cy,r,ang,ang+sw); ctx.closePath(); ctx.fill();
+        ang+=sw;
+    });
+    // hole
+    ctx.fillStyle='#0a0a0a';
+    ctx.beginPath(); ctx.arc(cx,cy,r-20,0,Math.PI*2); ctx.fill();
+    // center label
+    ctx.fillStyle='#fff';
+    ctx.font='700 15px "DM Mono",monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(tot.toFixed(1)+'h',cx,cy);
+
+    document.getElementById('chartLeg').innerHTML=slices.map(s=>
+        `<div class="leg-row"><div class="leg-left"><div class="leg-dot" style="background:${s.color}"></div><span class="leg-name">${s.label}</span></div><span class="leg-val">${s.val.toFixed(1)}h</span></div>`
+    ).join('');
+}
+
+function renderStats() {
+    let M=0,T=0,A=0,over=0;
+    const dh=dayHours();
+    cfg.days.forEach(d=>{
+        let u=0;
+        (data[d]?.meetings||[]).forEach(i=>{M+=i.duration;u+=i.duration;});
+        (data[d]?.tasks||[]).forEach(i=>{T+=i.duration;u+=i.duration;});
+        (data[d]?.admin||[]).forEach(i=>{A+=i.duration;u+=i.duration;});
+        if(u>dh) over++;
+    });
+    const tot=M+T+A;
+    document.getElementById('statsBox').innerHTML=`
+        <div class="st-row"><span class="st-label">Meetings</span><span class="st-val">${M.toFixed(1)}h</span></div>
+        <div class="st-row"><span class="st-label">Tasks</span><span class="st-val">${T.toFixed(1)}h</span></div>
+        <div class="st-row"><span class="st-label">Admin</span><span class="st-val">${A.toFixed(1)}h</span></div>
+        <div class="st-div"></div>
+        <div class="st-row"><span class="st-label">Week Total</span><span class="st-val">${tot.toFixed(1)}h / ${weekHours().toFixed(1)}h</span></div>
+        ${over>0?`<div class="alert alert-warn">⚠️ ${over} day(s) overbooked</div>`:tot>0?`<div class="alert alert-ok">✓ Week balanced</div>`:''}`;
+}
+
+function renderSummary() {
+    let lines=[], any=false, cM=0,cT=0,cA=0;
+    cfg.days.forEach(day=>{
+        const dl=[];
+        (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cM+=i.duration;any=true;});
+        (data[day]?.tasks||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cT+=i.duration;any=true;});
+        (data[day]?.admin||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cA+=i.duration;any=true;});
+        if(dl.length){ lines.push(day.toUpperCase()); lines.push('───────────────────────────'); lines.push(...dl); lines.push(''); }
+    });
+    if(!any){ document.getElementById('summaryOut').innerHTML='<span class="summary-ph">Check off completed items to build your weekly summary…</span>'; return; }
+    const cTot=cM+cT+cA;
+    lines.push('HOURS BREAKDOWN');
+    lines.push('───────────────────────────');
+    lines.push(`  Meetings:     ${cM.toFixed(1)}h`);
+    lines.push(`  Tasks:        ${cT.toFixed(1)}h`);
+    lines.push(`  Admin:        ${cA.toFixed(1)}h`);
+    lines.push(`  ─────────────────────────`);
+    lines.push(`  Total:        ${cTot.toFixed(1)}h`);
+    document.getElementById('summaryOut').textContent=lines.join('\n');
+}
+
+function copySummary() {
+    const el=document.getElementById('summaryOut');
+    if(el.querySelector('.summary-ph')) return;
+    navigator.clipboard.writeText(el.textContent).then(()=>{
+        const b=document.querySelector('.copy-btn');
+        b.textContent='Copied!';
+        setTimeout(()=>b.textContent='Copy',2000);
+    });
+}
+
+function resetWeek() {
+    if(!confirm('Clear everything for this week?')) return;
+    data={}; ensureData(); save(); render();
+}
+</script>
 </body>
 </html>
