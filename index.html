@@ -10,14 +10,14 @@
         * { margin:0; padding:0; box-sizing:border-box; }
 
         :root {
-            --meeting:#667eea; --task:#48bb78; --admin:#f6ad55;
+            --meeting:#667eea; --task:#48bb78; --admin:#f6ad55; --pto:#666;
             --bg:#000; --card:#0a0a0a; --card-hover:#111;
             --border:#222; --text:#fff; --muted:#888; --danger:#ff4444;
         }
 
         body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-        /* ─── WIZARD OVERLAY ─── */
+        /* ─── OVERLAYS ─── */
         .overlay {
             position:fixed; inset:0; background:rgba(0,0,0,0.85);
             z-index:100; display:flex; align-items:center; justify-content:center;
@@ -29,7 +29,6 @@
         }
         .progress-bar { height:3px; background:var(--border); }
         .progress-fill { height:100%; background:var(--task); transition:width .4s cubic-bezier(.4,0,.2,1); }
-
         .panel-body { padding:48px 40px 40px; }
 
         .step { display:none; animation:fadeUp .3s ease; }
@@ -40,7 +39,7 @@
         .step h2 { font-size:22px; font-weight:700; margin-bottom:8px; letter-spacing:-.3px; }
         .step > p { color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:28px; }
 
-        /* input rows used in wizard + settings */
+        /* input rows */
         .irow {
             display:flex; align-items:center; gap:14px;
             background:var(--card); border:1px solid var(--border);
@@ -60,7 +59,7 @@
         .irow input:focus, .irow select:focus { outline:none; border-color:#555; }
         .irow .unit { font-size:13px; color:var(--muted); white-space:nowrap; }
 
-        /* days toggle grid */
+        /* days toggle */
         .days-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; }
         .day-tog {
             background:var(--card); border:1px solid var(--border);
@@ -70,7 +69,7 @@
         .day-tog.on { border-color:var(--task); background:rgba(72,187,120,.08); }
         .day-tog.on .dlbl { color:var(--task); }
 
-        /* calculated result box */
+        /* calc box */
         .calc-box {
             background:rgba(72,187,120,.08); border:1px solid rgba(72,187,120,.25);
             border-radius:10px; padding:16px 18px; margin-top:18px;
@@ -80,7 +79,7 @@
         .calc-box .desc { font-size:13px; color:var(--muted); }
         .calc-box .desc strong { color:var(--text); display:block; font-size:14px; margin-bottom:1px; }
 
-        /* nav row */
+        /* nav */
         .nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:32px; }
         .nav-row .indicator { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.8px; }
         .nav-btns { display:flex; gap:10px; }
@@ -119,7 +118,7 @@
         }
         .settings-label:first-child { margin-top:0; }
 
-        /* ─── MAIN APP ─── */
+        /* ─── APP ─── */
         .app { display:none; }
         .app.on { display:block; }
 
@@ -161,6 +160,7 @@
         .ig input:focus, .ig select:focus { outline:none; border-color:#444; }
 
         .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
 
         .add-btn {
             width:100%; padding:12px; border:none; border-radius:6px;
@@ -171,6 +171,31 @@
         .add-btn:hover { background:#e5e5e5; transform:translateY(-1px); }
 
         .divider { height:1px; background:var(--border); margin:24px 0; }
+
+        /* full day toggle */
+        .fullday-row {
+            display:flex; align-items:center; gap:12px;
+            padding:10px 13px; background:var(--card);
+            border:1px solid var(--border); border-radius:6px;
+            margin-bottom:12px; cursor:pointer; transition:border-color .2s;
+        }
+        .fullday-row:hover { border-color:#444; }
+        .fullday-row.active { border-color:var(--pto); background:rgba(102,102,102,.12); }
+
+        .toggle-track {
+            width:36px; height:20px; background:#333;
+            border-radius:10px; position:relative; transition:background .2s;
+            flex-shrink:0;
+        }
+        .toggle-track.on { background:var(--pto); }
+        .toggle-track .knob {
+            width:16px; height:16px; background:#fff; border-radius:50%;
+            position:absolute; top:2px; left:2px; transition:left .2s;
+        }
+        .toggle-track.on .knob { left:18px; }
+
+        .fullday-label { font-size:13px; font-weight:500; }
+        .fullday-label small { display:block; font-size:11px; color:var(--muted); font-weight:400; }
 
         /* chart */
         .chart-box {
@@ -196,11 +221,10 @@
         .alert-warn { background:#1a0e00; border:1px solid var(--admin); color:var(--admin); }
         .alert-ok   { background:#0a1a0a; border:1px solid var(--task);  color:var(--task); }
 
-        /* main */
+        /* grid */
         .main-area { padding:32px 28px; overflow-y:auto; }
-        .week-grid {
-            display:grid; gap:14px; margin-bottom:36px;
-        }
+        .week-grid { display:grid; gap:14px; margin-bottom:36px; }
+
         .day-col {
             background:var(--card); border:1px solid var(--border);
             border-radius:10px; padding:18px; min-height:380px;
@@ -221,6 +245,17 @@
         .tbar-fill.warn{ background:var(--admin); }
         .tbar-fill.over{ background:var(--danger); }
 
+        /* PTO full-day banner on day columns */
+        .pto-banner {
+            background:rgba(102,102,102,.15); border:1px solid rgba(102,102,102,.3);
+            border-radius:6px; padding:10px 12px; margin-bottom:10px;
+            text-align:center;
+        }
+        .pto-banner .pto-label { font-size:13px; font-weight:700; color:var(--pto); text-transform:uppercase; letter-spacing:.8px; }
+        .pto-banner .pto-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+        .pto-banner .pto-rm { background:none; border:none; color:var(--muted); font-size:10px; font-weight:700; cursor:pointer; font-family:inherit; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; display:block; transition:color .2s; }
+        .pto-banner .pto-rm:hover { color:var(--danger); }
+
         /* items */
         .item {
             background:var(--card-hover); border:1px solid var(--border);
@@ -233,6 +268,7 @@
         .item.dragging { opacity:.35; }
         .item.task  { border-left-color:var(--task); }
         .item.admin { border-left-color:var(--admin); }
+        .item.pto   { border-left-color:var(--pto); }
         .item.done  { opacity:.4; }
         .item.done .item-name { text-decoration:line-through; }
 
@@ -275,14 +311,12 @@
   <div class="panel">
     <div class="progress-bar"><div class="progress-fill" id="wProg" style="width:25%"></div></div>
     <div class="panel-body">
-
       <div class="step active" id="s1">
         <span class="step-emoji">👋</span>
         <h2>Welcome to Weekly Planner</h2>
         <p>Let's set up your planner in about 30 seconds. A few quick questions about how you work — and we'll calculate your real available hours.</p>
         <div class="nav-row"><span class="indicator">1 of 4</span><button class="btn-solid" onclick="goStep(2)">Let's Go</button></div>
       </div>
-
       <div class="step" id="s2">
         <span class="step-emoji">🕘</span>
         <h2>When do you work?</h2>
@@ -291,7 +325,6 @@
         <div class="irow"><div class="icon">🌆</div><div class="lbl">Day ends at<small>Usual end time</small></div><input type="time" id="wEnd" value="17:00"></div>
         <div class="nav-row"><span class="indicator">2 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(1)">Back</button><button class="btn-solid" onclick="goStep(3)">Next</button></div></div>
       </div>
-
       <div class="step" id="s3">
         <span class="step-emoji">☕</span>
         <h2>How do you take breaks?</h2>
@@ -301,7 +334,6 @@
         <div class="irow"><div class="icon">⏱️</div><div class="lbl">Each break is<small>Average length</small></div><input type="number" id="wBreakLen" value="15" min="5" max="60" step="5"><span class="unit">min</span></div>
         <div class="nav-row"><span class="indicator">3 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(2)">Back</button><button class="btn-solid" onclick="goStep(4)">Next</button></div></div>
       </div>
-
       <div class="step" id="s4">
         <span class="step-emoji">📅</span>
         <h2>Which days do you work?</h2>
@@ -310,7 +342,6 @@
         <div class="calc-box"><div class="big" id="wCalcNum">32.5h</div><div class="desc"><strong>Available this week</strong>After lunch &amp; breaks</div></div>
         <div class="nav-row"><span class="indicator">4 of 4</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(3)">Back</button><button class="btn-solid" onclick="wizardDone()">Start Planning</button></div></div>
       </div>
-
     </div>
   </div>
 </div>
@@ -376,14 +407,31 @@
       <button class="add-btn" onclick="addItem('tasks')">Add Task</button>
       <div class="divider"></div>
 
-      <!-- Admin -->
-      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Admin</div>
-      <div class="ig"><label>Description</label><input type="text" id="aName" placeholder="Email, scheduling…"></div>
-      <div class="row2">
-        <div class="ig"><label>Day</label><select id="aDay"></select></div>
-        <div class="ig"><label>Hours</label><input type="number" id="aDur" value="0.5" step="0.5" min="0.5"></div>
+      <!-- Other (Admin / PTO / …) -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Other</div>
+      <div class="ig">
+        <label>Type</label>
+        <select id="oType" onchange="onOtherTypeChange()">
+          <option value="admin">Admin</option>
+          <option value="pto">PTO</option>
+        </select>
       </div>
-      <button class="add-btn" onclick="addItem('admin')">Add Admin</button>
+      <div class="ig"><label>Description</label><input type="text" id="oName" placeholder="Email, doctor appt…"></div>
+
+      <!-- Full-day toggle (shown only when PTO is selected) -->
+      <div id="fullDayToggleWrap" class="hidden">
+        <div class="fullday-row" id="fullDayRow" onclick="toggleFullDay()">
+          <div class="toggle-track" id="fullDayTrack"><div class="knob"></div></div>
+          <div class="fullday-label">Full day<small>Blocks the entire day</small></div>
+        </div>
+      </div>
+
+      <!-- Day + Hours row (hours hidden when full day is on) -->
+      <div class="row2" id="otherDayHourRow">
+        <div class="ig"><label>Day</label><select id="oDay"></select></div>
+        <div class="ig" id="otherHoursWrap"><label>Hours</label><input type="number" id="oDur" value="0.5" step="0.5" min="0.5"></div>
+      </div>
+      <button class="add-btn" onclick="addOther()">Add</button>
       <div class="divider"></div>
 
       <div class="stats-box" id="statsBox"></div>
@@ -401,26 +449,31 @@
 
 <script>
 const ALL_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
 let cfg = { start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15, days:['Monday','Tuesday','Wednesday','Thursday','Friday'] };
+
+// data shape per day: { meetings:[], tasks:[], other:[] }
+// each "other" item: { name, duration, subtype:'admin'|'pto', fullDay:bool, completed }
 let data = {};
 let drag = null;
+let isFullDay = false;   // live state of the full-day toggle
 
 /* ── helpers ── */
 function dayHours() {
-    const [sh,sm] = cfg.start.split(':').map(Number);
-    const [eh,em] = cfg.end.split(':').map(Number);
-    return Math.max(0, ((eh*60+em)-(sh*60+sm)) - cfg.lunch - cfg.breakCt*cfg.breakLen) / 60;
+    const [sh,sm]=cfg.start.split(':').map(Number);
+    const [eh,em]=cfg.end.split(':').map(Number);
+    return Math.max(0,((eh*60+em)-(sh*60+sm))-cfg.lunch-cfg.breakCt*cfg.breakLen)/60;
 }
-function weekHours() { return dayHours() * cfg.days.length; }
-function ensureData() { cfg.days.forEach(d => { if(!data[d]) data[d]={meetings:[],tasks:[],admin:[]}; }); }
-function save() { localStorage.setItem('wp_cfg', JSON.stringify(cfg)); localStorage.setItem('wp_data', JSON.stringify(data)); }
+function weekHours(){ return dayHours()*cfg.days.length; }
+function ensureData(){ cfg.days.forEach(d=>{ if(!data[d]) data[d]={meetings:[],tasks:[],other:[]}; /* migrate legacy admin */ if(data[d].admin){ data[d].other=data[d].other.concat(data[d].admin.map(i=>({...i,subtype:'admin',fullDay:false}))); delete data[d].admin; } }); }
+function save(){ localStorage.setItem('wp_cfg',JSON.stringify(cfg)); localStorage.setItem('wp_data',JSON.stringify(data)); }
 
 /* ── boot ── */
-(function boot() {
-    const c = localStorage.getItem('wp_cfg');
-    if (c) {
-        cfg  = JSON.parse(c);
-        data = JSON.parse(localStorage.getItem('wp_data') || '{}');
+(function boot(){
+    const c=localStorage.getItem('wp_cfg');
+    if(c){
+        cfg=JSON.parse(c);
+        data=JSON.parse(localStorage.getItem('wp_data')||'{}');
         ensureData();
         document.getElementById('wizardOverlay').classList.add('hidden');
         showApp();
@@ -431,118 +484,153 @@ function save() { localStorage.setItem('wp_cfg', JSON.stringify(cfg)); localStor
 })();
 
 /* ── days toggle ── */
-function renderDaysToggle(id) {
-    const el = document.getElementById(id);
-    el.innerHTML = '';
-    ALL_DAYS.forEach(d => {
-        const on = cfg.days.includes(d);
-        const t = document.createElement('div');
-        t.className = 'day-tog' + (on ? ' on' : '');
-        t.innerHTML = `<div class="dlbl">${d.slice(0,3)}</div>`;
-        t.onclick = () => {
-            if (cfg.days.includes(d)) { if (cfg.days.length > 1) cfg.days = cfg.days.filter(x=>x!==d); }
+function renderDaysToggle(id){
+    const el=document.getElementById(id); el.innerHTML='';
+    ALL_DAYS.forEach(d=>{
+        const on=cfg.days.includes(d);
+        const t=document.createElement('div');
+        t.className='day-tog'+(on?' on':'');
+        t.innerHTML=`<div class="dlbl">${d.slice(0,3)}</div>`;
+        t.onclick=()=>{
+            if(cfg.days.includes(d)){ if(cfg.days.length>1) cfg.days=cfg.days.filter(x=>x!==d); }
             else { cfg.days.push(d); cfg.days.sort((a,b)=>ALL_DAYS.indexOf(a)-ALL_DAYS.indexOf(b)); }
             renderDaysToggle(id);
-            updCalc(id === 'wDaysGrid' ? 'wCalcNum' : 'sCalcNum');
+            updCalc(id==='wDaysGrid'?'wCalcNum':'sCalcNum');
         };
         el.appendChild(t);
     });
 }
-function updCalc(id) { document.getElementById(id).textContent = weekHours().toFixed(1) + 'h'; }
+function updCalc(id){ document.getElementById(id).textContent=weekHours().toFixed(1)+'h'; }
 
 /* ── wizard ── */
-function goStep(n) {
-    // pull values when leaving a step
-    if (n >= 3) { cfg.start = document.getElementById('wStart').value; cfg.end = document.getElementById('wEnd').value; }
-    if (n >= 4) { cfg.lunch = +document.getElementById('wLunch').value||30; cfg.breakCt = +document.getElementById('wBreakCt').value||0; cfg.breakLen = +document.getElementById('wBreakLen').value||15; updCalc('wCalcNum'); }
-
+function goStep(n){
+    if(n>=3){ cfg.start=document.getElementById('wStart').value; cfg.end=document.getElementById('wEnd').value; }
+    if(n>=4){ cfg.lunch=+document.getElementById('wLunch').value||30; cfg.breakCt=+document.getElementById('wBreakCt').value||0; cfg.breakLen=+document.getElementById('wBreakLen').value||15; updCalc('wCalcNum'); }
     document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
     document.getElementById('s'+n).classList.add('active');
-    document.getElementById('wProg').style.width = (n*25)+'%';
+    document.getElementById('wProg').style.width=(n*25)+'%';
 }
-
-function wizardDone() { ensureData(); save(); document.getElementById('wizardOverlay').classList.add('hidden'); showApp(); }
+function wizardDone(){ ensureData(); save(); document.getElementById('wizardOverlay').classList.add('hidden'); showApp(); }
 
 /* ── settings ── */
-function openSettings() {
-    document.getElementById('sStart').value    = cfg.start;
-    document.getElementById('sEnd').value      = cfg.end;
-    document.getElementById('sLunch').value    = cfg.lunch;
-    document.getElementById('sBreakCt').value  = cfg.breakCt;
-    document.getElementById('sBreakLen').value = cfg.breakLen;
-    renderDaysToggle('sDaysGrid');
-    updCalc('sCalcNum');
+function openSettings(){
+    document.getElementById('sStart').value=cfg.start;
+    document.getElementById('sEnd').value=cfg.end;
+    document.getElementById('sLunch').value=cfg.lunch;
+    document.getElementById('sBreakCt').value=cfg.breakCt;
+    document.getElementById('sBreakLen').value=cfg.breakLen;
+    renderDaysToggle('sDaysGrid'); updCalc('sCalcNum');
     document.getElementById('settingsOverlay').classList.remove('hidden');
 }
-function closeSettings() { document.getElementById('settingsOverlay').classList.add('hidden'); }
-function saveSettings() {
-    cfg.start   = document.getElementById('sStart').value;
-    cfg.end     = document.getElementById('sEnd').value;
-    cfg.lunch   = +document.getElementById('sLunch').value||30;
-    cfg.breakCt = +document.getElementById('sBreakCt').value||0;
-    cfg.breakLen= +document.getElementById('sBreakLen').value||15;
+function closeSettings(){ document.getElementById('settingsOverlay').classList.add('hidden'); }
+function saveSettings(){
+    cfg.start=document.getElementById('sStart').value;
+    cfg.end=document.getElementById('sEnd').value;
+    cfg.lunch=+document.getElementById('sLunch').value||30;
+    cfg.breakCt=+document.getElementById('sBreakCt').value||0;
+    cfg.breakLen=+document.getElementById('sBreakLen').value||15;
     ensureData(); save(); closeSettings(); render();
 }
 
+/* ── Other section UI logic ── */
+function onOtherTypeChange(){
+    const isPTO = document.getElementById('oType').value === 'pto';
+    document.getElementById('fullDayToggleWrap').classList.toggle('hidden', !isPTO);
+    if(!isPTO){ isFullDay=false; syncFullDayUI(); }
+}
+
+function toggleFullDay(){
+    isFullDay = !isFullDay;
+    syncFullDayUI();
+}
+
+function syncFullDayUI(){
+    const track = document.getElementById('fullDayTrack');
+    const row   = document.getElementById('fullDayRow');
+    track.classList.toggle('on', isFullDay);
+    row.classList.toggle('active', isFullDay);
+    document.getElementById('otherHoursWrap').classList.toggle('hidden', isFullDay);
+}
+
 /* ── add / remove ── */
-const FLDS = {
-    meetings:{n:'mName',d:'mDay',dur:'mDur'},
-    tasks:   {n:'tName',d:'tDay',dur:'tDur'},
-    admin:   {n:'aName',d:'aDay',dur:'aDur'}
-};
-function addItem(type) {
-    const f=FLDS[type];
+function addItem(type){
+    const map = { meetings:{n:'mName',d:'mDay',dur:'mDur'}, tasks:{n:'tName',d:'tDay',dur:'tDur'} };
+    const f=map[type];
     const name=document.getElementById(f.n).value.trim();
     const day =document.getElementById(f.d).value;
     const dur =parseFloat(document.getElementById(f.dur).value);
-    if (!name||!dur) return;
+    if(!name||!dur) return;
     data[day][type].push({name,duration:dur,completed:false});
     document.getElementById(f.n).value='';
     document.getElementById(f.dur).value='0.5';
     save(); render();
 }
-function removeItem(day,type,i) { data[day][type].splice(i,1); save(); render(); }
-function toggleDone(day,type,i) { data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
+
+function addOther(){
+    const subtype = document.getElementById('oType').value;
+    const name    = document.getElementById('oName').value.trim();
+    const day     = document.getElementById('oDay').value;
+    const dur     = isFullDay ? dayHours() : parseFloat(document.getElementById('oDur').value);
+
+    if(!name||!dur) return;
+
+    data[day].other.push({ name, duration:dur, subtype, fullDay:isFullDay, completed:false });
+
+    // reset form
+    document.getElementById('oName').value='';
+    document.getElementById('oDur').value='0.5';
+    // keep type selection but reset full-day
+    isFullDay=false; syncFullDayUI();
+    save(); render();
+}
+
+function removeItem(day,type,i){ data[day][type].splice(i,1); save(); render(); }
+function toggleDone(day,type,i){ data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
 
 /* ── drag ── */
-function dStart(e,day,type,i) { drag={day,type,i}; e.currentTarget.classList.add('dragging'); }
-function dEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.day-col').forEach(c=>c.classList.remove('drag-over')); }
-function dOver(e) { e.preventDefault(); }
-function dEnter(e) { e.currentTarget.classList.add('drag-over'); }
-function dLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-function dDrop(e,target) {
+function dStart(e,day,type,i){ drag={day,type,i}; e.currentTarget.classList.add('dragging'); }
+function dEnd(e){ e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.day-col').forEach(c=>c.classList.remove('drag-over')); }
+function dOver(e){ e.preventDefault(); }
+function dEnter(e){ e.currentTarget.classList.add('drag-over'); }
+function dLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function dDrop(e,target){
     e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-    if (!drag||drag.day===target) return;
+    if(!drag||drag.day===target) return;
     const item=data[drag.day][drag.type].splice(drag.i,1)[0];
+    // if it was a full-day PTO moved to a new day, keep it full-day but update duration to target day hours
+    if(item.fullDay) item.duration=dayHours();
     data[target][drag.type].push(item);
     drag=null; save(); render();
 }
 
 /* ── populate selects ── */
-function fillSelects() {
-    ['mDay','tDay','aDay'].forEach(id => {
-        const s=document.getElementById(id);
-        s.innerHTML='';
-        cfg.days.forEach(d => s.innerHTML+=`<option value="${d}">${d}</option>`);
+function fillSelects(){
+    ['mDay','tDay','oDay'].forEach(id=>{
+        const s=document.getElementById(id); s.innerHTML='';
+        cfg.days.forEach(d=>s.innerHTML+=`<option value="${d}">${d}</option>`);
     });
 }
 
 /* ── RENDER ── */
-function showApp() { document.getElementById('app').classList.add('on'); fillSelects(); render(); }
+function showApp(){ document.getElementById('app').classList.add('on'); fillSelects(); render(); }
+function render(){ renderGrid(); renderPie(); renderStats(); renderSummary(); }
 
-function render() { renderGrid(); renderPie(); renderStats(); renderSummary(); }
-
-function renderGrid() {
+function renderGrid(){
     const g=document.getElementById('weekGrid');
-    g.style.gridTemplateColumns = `repeat(${cfg.days.length},1fr)`;
+    g.style.gridTemplateColumns=`repeat(${cfg.days.length},1fr)`;
     g.innerHTML='';
     const dh=dayHours();
 
-    cfg.days.forEach(day => {
+    cfg.days.forEach(day=>{
         const M=data[day]?.meetings||[];
         const T=data[day]?.tasks||[];
-        const A=data[day]?.admin||[];
-        const used=[...M,...T,...A].reduce((s,i)=>s+i.duration,0);
+        const O=data[day]?.other||[];
+
+        // separate full-day PTO from regular others
+        const fullDayPTO = O.filter(i=>i.fullDay && i.subtype==='pto');
+        const regularO   = O.filter(i=>!i.fullDay || i.subtype!=='pto');
+
+        const used=[...M,...T,...O].reduce((s,i)=>s+i.duration,0);
         const free=dh-used;
         const pct=Math.min((used/dh)*100,100);
         const barCls=used>dh?'over':pct>80?'warn':'';
@@ -554,9 +642,23 @@ function renderGrid() {
         col.ondrop=e=>dDrop(e,day);
 
         let items='';
+
+        // full-day PTO banner (sits at top, not draggable)
+        fullDayPTO.forEach((it,rawIdx)=>{
+            // find real index in O array
+            const realIdx = O.indexOf(it);
+            items+=`<div class="pto-banner">
+                <div class="pto-label">🏖️ PTO — ${it.name}</div>
+                <div class="pto-sub">Full day (${it.duration.toFixed(1)}h)</div>
+                <button class="pto-rm" onclick="removeItem('${day}','other',${realIdx})">Remove</button>
+            </div>`;
+        });
+
+        // regular items
         const row=(arr,type,cls)=>arr.forEach((it,i)=>{
-            const label = type==='meetings'?'Meeting':type==='tasks'?'Task':'Admin';
-            items+=`<div class="item ${cls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','${type}',${i})" ondragend="dEnd(event)">
+            const label = type==='meetings'?'Meeting':type==='tasks'?'Task':it.subtype==='pto'?'PTO':'Admin';
+            const colorCls = type==='meetings'?'':type==='tasks'?'task':it.subtype==='pto'?'pto':'admin';
+            items+=`<div class="item ${colorCls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','${type}',${i})" ondragend="dEnd(event)">
                 <div class="item-top">
                     <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','${type}',${i})">
                     <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}</div></div>
@@ -564,9 +666,22 @@ function renderGrid() {
                 <button class="item-rm" onclick="removeItem('${day}','${type}',${i})">Remove</button>
             </div>`;
         });
+
         row(M,'meetings','');
-        row(T,'tasks','task');
-        row(A,'admin','admin');
+        row(T,'tasks','');
+        // for "other", we pass the full array so indices stay correct
+        O.forEach((it,i)=>{
+            if(it.fullDay && it.subtype==='pto') return; // already rendered as banner
+            const label = it.subtype==='pto'?'PTO':'Admin';
+            const colorCls = it.subtype==='pto'?'pto':'admin';
+            items+=`<div class="item ${colorCls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','other',${i})" ondragend="dEnd(event)">
+                <div class="item-top">
+                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','other',${i})">
+                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}</div></div>
+                </div>
+                <button class="item-rm" onclick="removeItem('${day}','other',${i})">Remove</button>
+            </div>`;
+        });
 
         col.innerHTML=`
             <div class="day-col-hdr">${day}</div>
@@ -578,19 +693,19 @@ function renderGrid() {
     });
 }
 
-function renderPie() {
+function renderPie(){
     const c=document.getElementById('pieChart'), ctx=c.getContext('2d');
     ctx.clearRect(0,0,c.width,c.height);
-    let M=0,T=0,A=0;
+    let M=0,T=0,A=0,P=0;
     cfg.days.forEach(d=>{
         (data[d]?.meetings||[]).forEach(i=>M+=i.duration);
         (data[d]?.tasks||[]).forEach(i=>T+=i.duration);
-        (data[d]?.admin||[]).forEach(i=>A+=i.duration);
+        (data[d]?.other||[]).forEach(i=>{ if(i.subtype==='pto') P+=i.duration; else A+=i.duration; });
     });
-    const tot=M+T+A;
+    const tot=M+T+A+P;
     const cx=c.width/2, cy=c.height/2, r=65;
 
-    if(!tot) {
+    if(!tot){
         ctx.strokeStyle='#222'; ctx.lineWidth=14;
         ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
         document.getElementById('chartLeg').innerHTML='<div style="color:#555;text-align:center;font-size:12px;padding-top:6px;">No time logged yet</div>';
@@ -600,7 +715,8 @@ function renderPie() {
     const slices=[
         {label:'Meetings',val:M,color:'#667eea'},
         {label:'Tasks',val:T,color:'#48bb78'},
-        {label:'Admin',val:A,color:'#f6ad55'}
+        {label:'Admin',val:A,color:'#f6ad55'},
+        {label:'PTO',val:P,color:'#666'}
     ].filter(s=>s.val>0);
 
     let ang=-Math.PI/2;
@@ -611,10 +727,8 @@ function renderPie() {
         ctx.arc(cx,cy,r,ang,ang+sw); ctx.closePath(); ctx.fill();
         ang+=sw;
     });
-    // hole
     ctx.fillStyle='#0a0a0a';
     ctx.beginPath(); ctx.arc(cx,cy,r-20,0,Math.PI*2); ctx.fill();
-    // center label
     ctx.fillStyle='#fff';
     ctx.font='700 15px "DM Mono",monospace';
     ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -625,58 +739,64 @@ function renderPie() {
     ).join('');
 }
 
-function renderStats() {
-    let M=0,T=0,A=0,over=0;
+function renderStats(){
+    let M=0,T=0,A=0,P=0,over=0;
     const dh=dayHours();
     cfg.days.forEach(d=>{
         let u=0;
         (data[d]?.meetings||[]).forEach(i=>{M+=i.duration;u+=i.duration;});
         (data[d]?.tasks||[]).forEach(i=>{T+=i.duration;u+=i.duration;});
-        (data[d]?.admin||[]).forEach(i=>{A+=i.duration;u+=i.duration;});
+        (data[d]?.other||[]).forEach(i=>{ if(i.subtype==='pto'){P+=i.duration;}else{A+=i.duration;} u+=i.duration; });
         if(u>dh) over++;
     });
-    const tot=M+T+A;
+    const tot=M+T+A+P;
     document.getElementById('statsBox').innerHTML=`
         <div class="st-row"><span class="st-label">Meetings</span><span class="st-val">${M.toFixed(1)}h</span></div>
         <div class="st-row"><span class="st-label">Tasks</span><span class="st-val">${T.toFixed(1)}h</span></div>
         <div class="st-row"><span class="st-label">Admin</span><span class="st-val">${A.toFixed(1)}h</span></div>
+        <div class="st-row"><span class="st-label">PTO</span><span class="st-val">${P.toFixed(1)}h</span></div>
         <div class="st-div"></div>
         <div class="st-row"><span class="st-label">Week Total</span><span class="st-val">${tot.toFixed(1)}h / ${weekHours().toFixed(1)}h</span></div>
         ${over>0?`<div class="alert alert-warn">⚠️ ${over} day(s) overbooked</div>`:tot>0?`<div class="alert alert-ok">✓ Week balanced</div>`:''}`;
 }
 
-function renderSummary() {
-    let lines=[], any=false, cM=0,cT=0,cA=0;
+function renderSummary(){
+    let lines=[],any=false,cM=0,cT=0,cA=0,cP=0;
     cfg.days.forEach(day=>{
         const dl=[];
         (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cM+=i.duration;any=true;});
         (data[day]?.tasks||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cT+=i.duration;any=true;});
-        (data[day]?.admin||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cA+=i.duration;any=true;});
+        (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{
+            const tag=i.subtype==='pto'?'PTO':'Admin';
+            dl.push(`  • ${i.name} (${i.duration}h · ${tag}${i.fullDay?' – Full Day':''})`);
+            if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration;
+            any=true;
+        });
         if(dl.length){ lines.push(day.toUpperCase()); lines.push('───────────────────────────'); lines.push(...dl); lines.push(''); }
     });
     if(!any){ document.getElementById('summaryOut').innerHTML='<span class="summary-ph">Check off completed items to build your weekly summary…</span>'; return; }
-    const cTot=cM+cT+cA;
+    const cTot=cM+cT+cA+cP;
     lines.push('HOURS BREAKDOWN');
     lines.push('───────────────────────────');
     lines.push(`  Meetings:     ${cM.toFixed(1)}h`);
     lines.push(`  Tasks:        ${cT.toFixed(1)}h`);
     lines.push(`  Admin:        ${cA.toFixed(1)}h`);
+    lines.push(`  PTO:          ${cP.toFixed(1)}h`);
     lines.push(`  ─────────────────────────`);
     lines.push(`  Total:        ${cTot.toFixed(1)}h`);
     document.getElementById('summaryOut').textContent=lines.join('\n');
 }
 
-function copySummary() {
+function copySummary(){
     const el=document.getElementById('summaryOut');
     if(el.querySelector('.summary-ph')) return;
     navigator.clipboard.writeText(el.textContent).then(()=>{
         const b=document.querySelector('.copy-btn');
-        b.textContent='Copied!';
-        setTimeout(()=>b.textContent='Copy',2000);
+        b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000);
     });
 }
 
-function resetWeek() {
+function resetWeek(){
     if(!confirm('Clear everything for this week?')) return;
     data={}; ensureData(); save(); render();
 }
