@@ -617,7 +617,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
     <p>Add meetings, tasks, admin, or PTO that repeat on a schedule. They'll appear as suggestions each week. Skip this and add them later if you prefer.</p>
     <div class="wiz-rec-form">
      <div class="wr-row"><input class="wr-name" type="text" id="wrName" placeholder="e.g. Team standup"><input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.25" min="0.25"></div>
-     <div class="wr-row"><select id="wrCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Weekly</option><option value="biweekly">Bi-Weekly</option><option value="monthly">Monthly</option><option value="daily">Daily</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
+     <div class="wr-row"><select id="wrCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Weekly</option><option value="biweekly">Bi-weekly</option><option value="monthly">Monthly</option><option value="daily">Daily</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
      <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
     </div>
     <div class="wiz-rec-pills" id="wizRecPills"></div>
@@ -705,7 +705,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
    <div id="parityRow" class="hidden parity-row"><span>Bi-weekly phase off?</span><button class="parity-btn" onclick="flipParity()">Flip</button></div>
    <div class="wiz-rec-form" style="margin-top:8px;">
     <div class="wr-row"><input class="wr-name" type="text" id="sRecName" placeholder="New recurring…"><input class="wr-dur" type="number" id="sRecDur" value="0.5" step="0.25" min="0.25"></div>
-    <div class="wr-row"><select id="sRecCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="sRecDay"></select><select id="sRecCadence" onchange="onSidebarCadenceChange()"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="sRecMonthDay" class="hidden" style="width:80px;"></select></div>
+    <div class="wr-row"><select id="sRecCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="sRecDay"></select><select id="sRecCadence" onchange="onSidebarCadenceChange()"><option value="weekly">Weekly</option><option value="biweekly">Bi-weekly</option><option value="monthly">Monthly</option><option value="daily">Daily</option></select><select id="sRecMonthDay" class="hidden" style="width:80px;"></select></div>
     <button class="wr-add" onclick="sidebarAddRecurring()">+ Add</button>
    </div>
 
@@ -950,7 +950,7 @@ function renderWizRecPills(){
     const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
     const catColors={meetings:'meeting',tasks:'task',admin:'admin',pto:'pto'};
     el.innerHTML=cfg.recurring.map(r=>{
-        const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':r.cadence==='daily'?'Every work day':`Monthly (${ordinal(r.monthDay)})`;
+        const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Bi-weekly':r.cadence==='daily'?'Daily':`Monthly (${ordinal(r.monthDay)})`;
         const cat=r.category||'meetings';
         const catL=catLabels[cat];
         return `<div class="wiz-rec-pill"><div class="wp-left"><div class="wp-dot" style="background:var(--${catColors[cat]})"></div><span>${r.name} · ${r.duration}h · ${catL} · ${r.cadence==='daily'?'All days':r.day} · ${cadL}</span></div><button class="wp-rm" onclick="wizRemoveRecurring('${r.id}')">✕</button></div>`;
@@ -1119,10 +1119,12 @@ function renderSuggestions(){
     const tray=document.getElementById('suggestionsTray');
     if(!pending.length){ tray.innerHTML=''; return; }
     const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
+    const cadLabels={weekly:'Weekly',biweekly:'Bi-weekly',monthly:'Monthly',daily:'Daily'};
     tray.innerHTML=`<div class="suggestions-tray"><div class="suggestions-title">📅 Recurring Suggestions <span class="s-count">${pending.length}</span></div>${pending.map(s=>{
         const cat=s.rec.category||'meetings';
         const catL=catLabels[cat];
-        return `<div class="suggestion-item"><div class="si-inner"><div class="si-name">${s.rec.name}</div><div class="si-meta">${catL} · ${s.day} · ${s.rec.duration}h · ${s.rec.cadence}</div></div><div class="si-btns"><button class="si-btn add" onclick="confirmSuggestion('${s.stateKey}','${s.rec.id}','${s.day}')">Add</button><button class="si-btn skip" onclick="dismissSuggestion('${s.stateKey}')">Skip</button></div></div>`;
+        const cadL=cadLabels[s.rec.cadence]||s.rec.cadence;
+        return `<div class="suggestion-item"><div class="si-inner"><div class="si-name">${s.rec.name}</div><div class="si-meta">${catL} · ${s.day} · ${s.rec.duration}h · ${cadL}</div></div><div class="si-btns"><button class="si-btn add" onclick="confirmSuggestion('${s.stateKey}','${s.rec.id}','${s.day}')">Add</button><button class="si-btn skip" onclick="dismissSuggestion('${s.stateKey}')">Skip</button></div></div>`;
     }).join('')}</div>`;
 }
 function renderRecChips(){
@@ -1132,7 +1134,7 @@ function renderRecChips(){
     const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
     const catColors={meetings:'meeting',tasks:'task',admin:'admin',pto:'pto'};
     el.innerHTML=cfg.recurring.map(r=>{
-        const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Biweekly':r.cadence==='daily'?'Daily':`Monthly (${ordinal(r.monthDay)})`;
+        const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Bi-weekly':r.cadence==='daily'?'Daily':`Monthly (${ordinal(r.monthDay)})`;
         const cat=r.category||'meetings';
         const catL=catLabels[cat];
         return `<div class="rec-chip" style="border-left-color:var(--${catColors[cat]})"><div class="rc-inner"><div class="rc-name">${r.name}</div><div class="rc-meta">${catL} · ${r.cadence==='daily'?'All work days':r.day} · ${r.duration}h · ${cadL}</div></div><button class="rc-del" onclick="deleteRecurring('${r.id}')">✕</button></div>`;
