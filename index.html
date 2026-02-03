@@ -334,17 +334,22 @@
             transition:border-color .2s, background .2s;
         }
         .day-col.drag-over { border-color:#555; background:var(--card-hover); }
-        .day-col-hdr { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding-bottom:10px; border-bottom:2px solid var(--text); margin-bottom:12px; }
+        .day-col-hdr {
+            font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+            padding:10px 12px; margin:-18px -18px 14px;
+            background:rgba(255,255,255,.03); border-bottom:1px solid var(--border);
+            border-radius:10px 10px 0 0;
+        }
 
         .time-wrap { background:#000; border:1px solid var(--border); border-radius:6px; padding:10px 12px; margin-bottom:16px; }
-        .time-top { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; }
+        .time-top { display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px; }
         .time-used { font-weight:600; }
         .time-free { font-weight:700; }
         .time-free.ok  { color:var(--text); }
         .time-free.warn{ color:var(--admin); }
         .time-free.over{ color:var(--danger); }
-        .tbar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
-        .tbar-fill { height:100%; background:var(--text); transition:width .3s,background .3s; }
+        .tbar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+        .tbar-fill { height:100%; background:var(--text); border-radius:3px; transition:width .3s,background .3s; }
         .tbar-fill.warn{ background:var(--admin); }
         .tbar-fill.over{ background:var(--danger); }
 
@@ -365,6 +370,7 @@
             border-left:3px solid var(--meeting); border-radius:6px;
             padding:11px 13px; margin-bottom:9px; cursor:grab;
             transition:background .15s, transform .15s;
+            position:relative;
         }
         .item:hover { background:#1e1e1e; transform:translateX(2px); }
         .item:active { cursor:grabbing; }
@@ -376,15 +382,37 @@
         .item.done .item-name { text-decoration:line-through; }
 
         .item-top { display:flex; align-items:flex-start; gap:9px; }
-        .item-cb { margin-top:2px; width:16px; height:16px; cursor:pointer; flex-shrink:0; }
+
+        /* #8 custom checkbox */
+        .item-cb {
+            -webkit-appearance:none; appearance:none;
+            margin-top:3px; width:16px; height:16px; flex-shrink:0;
+            border:2px solid #444; border-radius:4px;
+            background:transparent; cursor:pointer;
+            transition:background .15s, border-color .15s;
+            position:relative;
+        }
+        .item-cb:hover { border-color:#666; }
+        .item-cb:checked { background:var(--task); border-color:var(--task); }
+        .item-cb:checked::after {
+            content:''; position:absolute; left:4px; top:1px;
+            width:5px; height:9px; border:solid #fff;
+            border-width:0 2px 2px 0; transform:rotate(45deg);
+        }
+
         .item-inner { flex:1; min-width:0; }
         .item-name { font-size:14px; font-weight:600; margin-bottom:2px; }
         .item-meta { font-size:11px; color:var(--muted); }
+
+        /* #5 remove button — hidden until card hover */
         .item-rm {
             background:none; border:none; color:var(--muted); cursor:pointer;
             font-size:10px; font-weight:700; text-transform:uppercase;
-            letter-spacing:.5px; padding:3px 0 0 24px; font-family:inherit; transition:color .2s;
+            letter-spacing:.5px; font-family:inherit; transition:color .2s, opacity .15s;
+            position:absolute; top:10px; right:11px;
+            opacity:0; pointer-events:none;
         }
+        .item:hover .item-rm { opacity:1; pointer-events:auto; }
         .item-rm:hover { color:var(--danger); }
 
         /* recurring badge on confirmed items */
@@ -397,7 +425,7 @@
 
         /* summary */
         .summary-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:28px; }
-        .summary-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .summary-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
         .summary-top h3 { font-size:18px; font-weight:700; letter-spacing:-.3px; }
         .copy-btn {
             background:var(--text); color:#000; border:none; padding:9px 18px;
@@ -411,6 +439,20 @@
             line-height:1.9; color:var(--text); white-space:pre-wrap; min-height:110px;
         }
         .summary-ph { color:#555; font-style:italic; font-family:'DM Sans',sans-serif; }
+
+        /* ─── unified add form — category pills ─── */
+        .cat-pills { display:flex; gap:6px; margin-bottom:14px; }
+        .cat-pill {
+            flex:1; padding:8px 4px; border-radius:6px; text-align:center;
+            font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+            cursor:pointer; border:1px solid var(--border); background:var(--card);
+            color:var(--muted); transition:all .15s; font-family:inherit;
+        }
+        .cat-pill:hover { border-color:#444; color:var(--text); }
+        .cat-pill.active-meeting { border-color:var(--meeting); background:rgba(102,126,234,.12); color:var(--meeting); }
+        .cat-pill.active-task    { border-color:var(--task);    background:rgba(72,187,120,.12);  color:var(--task); }
+        .cat-pill.active-admin   { border-color:var(--admin);   background:rgba(246,173,85,.12);  color:var(--admin); }
+        .cat-pill.active-pto     { border-color:var(--pto);     background:rgba(102,102,102,.18); color:#aaa; }
 
         .hidden { display:none !important; }
     </style>
@@ -561,47 +603,26 @@
       </div>
       <div class="divider"></div>
 
-      <!-- Meeting -->
-      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Meeting</div>
-      <div class="ig"><label>Name</label><input type="text" id="mName" placeholder="Team standup"></div>
-      <div class="row2">
-        <div class="ig"><label>Day</label><select id="mDay"></select></div>
-        <div class="ig"><label>Hours</label><input type="number" id="mDur" value="0.5" step="0.5" min="0.5"></div>
+      <!-- Unified Add Item -->
+      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Add Item</div>
+      <div class="cat-pills" id="catPills">
+        <button class="cat-pill active-meeting" data-cat="meetings" onclick="setCat('meetings')">Meeting</button>
+        <button class="cat-pill" data-cat="tasks" onclick="setCat('tasks')">Task</button>
+        <button class="cat-pill" data-cat="admin" onclick="setCat('admin')">Admin</button>
+        <button class="cat-pill" data-cat="pto" onclick="setCat('pto')">PTO</button>
       </div>
-      <button class="add-btn" onclick="addItem('meetings')">Add Meeting</button>
-      <div class="divider"></div>
-
-      <!-- Task -->
-      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7 2-7-18-7 18 7-2zm0 0v-8"/></svg> Task</div>
-      <div class="ig"><label>Name</label><input type="text" id="tName" placeholder="Write proposal"></div>
-      <div class="row2">
-        <div class="ig"><label>Day</label><select id="tDay"></select></div>
-        <div class="ig"><label>Hours</label><input type="number" id="tDur" value="0.5" step="0.5" min="0.5"></div>
-      </div>
-      <button class="add-btn" onclick="addItem('tasks')">Add Task</button>
-      <div class="divider"></div>
-
-      <!-- Other (Admin / PTO) -->
-      <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Other</div>
-      <div class="ig">
-        <label>Type</label>
-        <select id="oType" onchange="onOtherTypeChange()">
-          <option value="admin">Admin</option>
-          <option value="pto">PTO</option>
-        </select>
-      </div>
-      <div class="ig"><label>Description</label><input type="text" id="oName" placeholder="Email, doctor appt…"></div>
+      <div class="ig"><label>Name</label><input type="text" id="uName" placeholder="e.g. Team standup"></div>
       <div id="fullDayToggleWrap" class="hidden">
         <div class="fullday-row" id="fullDayRow" onclick="toggleFullDay()">
           <div class="toggle-track" id="fullDayTrack"><div class="knob"></div></div>
           <div class="fullday-label">Full day<small>Blocks the entire day</small></div>
         </div>
       </div>
-      <div class="row2" id="otherDayHourRow">
-        <div class="ig"><label>Day</label><select id="oDay"></select></div>
-        <div class="ig" id="otherHoursWrap"><label>Hours</label><input type="number" id="oDur" value="0.5" step="0.5" min="0.5"></div>
+      <div class="row2" id="uDayHourRow">
+        <div class="ig"><label>Day</label><select id="uDay"></select></div>
+        <div class="ig" id="uHoursWrap"><label>Hours</label><input type="number" id="uDur" value="0.5" step="0.5" min="0.5"></div>
       </div>
-      <button class="add-btn" onclick="addOther()">Add</button>
+      <button class="add-btn" id="uAddBtn" onclick="addUnified()">Add Meeting</button>
       <div class="divider"></div>
 
       <div class="stats-box" id="statsBox"></div>
@@ -818,10 +839,14 @@ function renderDaysToggle(id){
 function updCalc(id){ document.getElementById(id).textContent=weekHours().toFixed(1)+'h'; }
 
 /* ── month day select helper ── */
+function ordinal(n){
+    const s=['th','st','nd','rd'], v=n%100;
+    return n+(s[(v-20)%10]||s[v]||s[0]);
+}
 function populateMonthDaySelect(selectId){
     const s=document.getElementById(selectId);
     if(!s) return;
-    s.innerHTML=MONTH_DAYS.map(n=>`<option value="${n}">${n}th</option>`).join('');
+    s.innerHTML=MONTH_DAYS.map(n=>`<option value="${n}">${ordinal(n)}</option>`).join('');
 }
 
 /* ── wizard day select for recurring ── */
@@ -855,6 +880,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
 });
 
+function calcBiweeklyPhase(){
+    const monday=getMonday(new Date());
+    const epoch=new Date('2024-01-01T00:00:00');
+    const weeksSinceEpoch=Math.round((monday-epoch)/(7*24*60*60*1000));
+    return weeksSinceEpoch%2; // 0 or 1 — matches the phase check in isRecurringDueThisWeek
+}
+
 function wizAddRecurring(){
     const name=document.getElementById('wrName').value.trim();
     const dur=parseFloat(document.getElementById('wrDur').value);
@@ -865,7 +897,7 @@ function wizAddRecurring(){
 
     cfg.recurring.push({
         id:uid(), name, duration:dur, day, cadence, monthDay,
-        biweeklyPhase: cadence==='biweekly' ? (new Date().getDate()%2) : undefined
+        biweeklyPhase: cadence==='biweekly' ? calcBiweeklyPhase() : undefined
     });
     // reset form
     document.getElementById('wrName').value='';
@@ -909,7 +941,7 @@ function saveSettings(){
     cfg.lunch=+document.getElementById('sLunch').value||30;
     cfg.breakCt=+document.getElementById('sBreakCt').value||0;
     cfg.breakLen=+document.getElementById('sBreakLen').value||15;
-    ensureData(); save(); closeSettings(); render();
+    ensureData(); save(); closeSettings(); fillSelects(); render();
 }
 
 /* ── sidebar recurring ── */
@@ -927,7 +959,7 @@ function sidebarAddRecurring(){
     if(!name||!dur) return;
     cfg.recurring.push({
         id:uid(), name, duration:dur, day, cadence, monthDay,
-        biweeklyPhase: cadence==='biweekly' ? (new Date().getDate()%2) : undefined
+        biweeklyPhase: cadence==='biweekly' ? calcBiweeklyPhase() : undefined
     });
     document.getElementById('sRecName').value='';
     document.getElementById('sRecDur').value='0.5';
@@ -971,44 +1003,56 @@ function flipParity(){
     save(); render();
 }
 
-/* ── Other section UI logic ── */
-function onOtherTypeChange(){
-    const isPTO=document.getElementById('oType').value==='pto';
-    document.getElementById('fullDayToggleWrap').classList.toggle('hidden',!isPTO);
-    if(!isPTO){ isFullDay=false; syncFullDayUI(); }
+/* ── unified add form ── */
+let activeCat='meetings'; // meetings | tasks | admin | pto
+
+function setCat(cat){
+    activeCat=cat;
+    // update pill highlights
+    document.querySelectorAll('.cat-pill').forEach(p=>{
+        p.className='cat-pill'; // reset
+    });
+    const activeClass={meetings:'active-meeting',tasks:'active-task',admin:'active-admin',pto:'active-pto'};
+    const pill=document.querySelector(`.cat-pill[data-cat="${cat}"]`);
+    if(pill) pill.classList.add(activeClass[cat]);
+    // Full Day toggle: only show for PTO
+    document.getElementById('fullDayToggleWrap').classList.toggle('hidden', cat!=='pto');
+    if(cat!=='pto'){ isFullDay=false; syncFullDayUI(); }
+    // button label
+    const labels={meetings:'Add Meeting',tasks:'Add Task',admin:'Add Admin',pto:'Add PTO'};
+    document.getElementById('uAddBtn').textContent=labels[cat];
+    // placeholder
+    const phs={meetings:'e.g. Team standup',tasks:'e.g. Write proposal',admin:'e.g. Email cleanup',pto:'e.g. Dentist appt'};
+    document.getElementById('uName').placeholder=phs[cat];
 }
+
+function addUnified(){
+    const name=document.getElementById('uName').value.trim();
+    const day=document.getElementById('uDay').value;
+    const dur=isFullDay?dayHours():parseFloat(document.getElementById('uDur').value);
+    if(!name||!dur) return;
+
+    if(activeCat==='meetings'){
+        data[day].meetings.push({name,duration:dur,completed:false});
+    } else if(activeCat==='tasks'){
+        data[day].tasks.push({name,duration:dur,completed:false});
+    } else {
+        // admin or pto → goes into other[]
+        data[day].other.push({name,duration:dur,subtype:activeCat,fullDay:isFullDay,completed:false});
+    }
+    document.getElementById('uName').value='';
+    document.getElementById('uDur').value='0.5';
+    isFullDay=false; syncFullDayUI();
+    save(); render();
+}
+
 function toggleFullDay(){ isFullDay=!isFullDay; syncFullDayUI(); }
 function syncFullDayUI(){
     document.getElementById('fullDayTrack').classList.toggle('on',isFullDay);
     document.getElementById('fullDayRow').classList.toggle('active',isFullDay);
-    document.getElementById('otherHoursWrap').classList.toggle('hidden',isFullDay);
+    document.getElementById('uHoursWrap').classList.toggle('hidden',isFullDay);
 }
 
-/* ── add / remove ── */
-function addItem(type){
-    const map={meetings:{n:'mName',d:'mDay',dur:'mDur'},tasks:{n:'tName',d:'tDay',dur:'tDur'}};
-    const f=map[type];
-    const name=document.getElementById(f.n).value.trim();
-    const day=document.getElementById(f.d).value;
-    const dur=parseFloat(document.getElementById(f.dur).value);
-    if(!name||!dur) return;
-    data[day][type].push({name,duration:dur,completed:false});
-    document.getElementById(f.n).value='';
-    document.getElementById(f.dur).value='0.5';
-    save(); render();
-}
-function addOther(){
-    const subtype=document.getElementById('oType').value;
-    const name=document.getElementById('oName').value.trim();
-    const day=document.getElementById('oDay').value;
-    const dur=isFullDay?dayHours():parseFloat(document.getElementById('oDur').value);
-    if(!name||!dur) return;
-    data[day].other.push({name,duration:dur,subtype,fullDay:isFullDay,completed:false});
-    document.getElementById('oName').value='';
-    document.getElementById('oDur').value='0.5';
-    isFullDay=false; syncFullDayUI();
-    save(); render();
-}
 function removeItem(day,type,i){ data[day][type].splice(i,1); save(); render(); }
 function toggleDone(day,type,i){ data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
 
@@ -1030,7 +1074,7 @@ function dDrop(e,target){
 
 /* ── populate selects ── */
 function fillSelects(){
-    ['mDay','tDay','oDay','sRecDay'].forEach(id=>{
+    ['uDay','sRecDay'].forEach(id=>{
         const s=document.getElementById(id);
         if(!s) return;
         s.innerHTML='';
@@ -1043,6 +1087,7 @@ function fillSelects(){
 function showApp(){
     document.getElementById('app').classList.add('on');
     fillSelects();
+    setCat(activeCat); // initialise unified form pill/label/placeholder
     setTimeout(()=>render(),0);
 }
 function render(){ renderSuggestions(); renderRecChips(); renderGrid(); renderPie(); renderStats(); renderSummary(); }
