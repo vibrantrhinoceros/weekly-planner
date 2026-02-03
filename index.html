@@ -617,7 +617,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
     <p>Add meetings, tasks, admin, or PTO that repeat on a schedule. They'll appear as suggestions each week. Skip this and add them later if you prefer.</p>
     <div class="wiz-rec-form">
      <div class="wr-row"><input class="wr-name" type="text" id="wrName" placeholder="e.g. Team standup"><input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.25" min="0.25"></div>
-     <div class="wr-row"><select id="wrCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
+     <div class="wr-row"><select id="wrCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Weekly</option><option value="biweekly">Bi-Weekly</option><option value="monthly">Monthly</option><option value="daily">Daily</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
      <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
     </div>
     <div class="wiz-rec-pills" id="wizRecPills"></div>
