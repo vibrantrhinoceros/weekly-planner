@@ -173,8 +173,8 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 
 /* suggestions tray */
 .suggestions-tray { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:24px; box-shadow:var(--shadow-md); }
-.suggestions-title { font-size:11px; font-weight:700; color:var(--meeting); text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-.suggestions-title .s-count { background-image:var(--grad-meeting); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; font-weight:700; }
+.suggestions-title { font-size:11px; font-weight:700; color:var(--teal-dark); text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.suggestions-title .s-count { background:var(--grad-progress); color:#fff; font-size:10px; padding:2px 7px; border-radius:10px; font-weight:700; }
 .suggestion-item { display:flex; align-items:center; gap:12px; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:11px 13px; margin-bottom:8px; }
 .suggestion-item:last-child { margin-bottom:0; }
 .suggestion-item .si-inner { flex:1; min-width:0; }
@@ -182,7 +182,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .suggestion-item .si-meta { font-size:11px; color:var(--muted); margin-top:2px; }
 .si-btns { display:flex; gap:6px; flex-shrink:0; }
 .si-btn { padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; border:none; transition:all .15s; text-transform:uppercase; letter-spacing:.5px; }
-.si-btn.add { background-image:var(--grad-meeting); color:#fff; box-shadow:var(--shadow-sm); }
+.si-btn.add { background:var(--grad-progress); color:#fff; box-shadow:var(--shadow-sm); }
 .si-btn.add:hover { filter:brightness(1.1); transform:translateY(-1px); }
 .si-btn.skip { background:transparent; color:var(--muted); border:1px solid var(--border); }
 .si-btn.skip:hover { border-color:var(--text-secondary); color:var(--text); }
@@ -195,8 +195,8 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .wiz-rec-form input:focus, .wiz-rec-form select:focus { outline:none; border-color:var(--teal-mid); }
 .wiz-rec-form .wr-name { flex:1; min-width:0; }
 .wiz-rec-form .wr-dur { width:68px; text-align:center; font-family:'JetBrains Mono',monospace; }
-.wiz-rec-form .wr-add { width:100%; margin-top:4px; background-image:var(--grad-meeting); color:#fff; border:none; padding:9px 14px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; text-transform:uppercase; letter-spacing:.5px; transition:all .15s; }
-.wiz-rec-form .wr-add:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.wiz-rec-form .wr-add { width:100%; margin-top:4px; background:var(--text); color:#fff; border:none; padding:9px 14px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; text-transform:uppercase; letter-spacing:.5px; transition:all .15s; }
+.wiz-rec-form .wr-add:hover { background:var(--text-secondary); transform:translateY(-1px); }
 .wiz-rec-form select:disabled { opacity:.35; }
 
 /* wizard rec pills */
@@ -257,7 +257,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .pto-banner .pto-rm:hover { color:var(--danger); }
 
 /* ─── ITEM CARDS ─── */
-.item { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--meeting); border-radius:8px; padding:11px 13px; margin-bottom:9px; cursor:grab; transition:all .15s; position:relative; overflow:hidden; box-shadow:var(--shadow-sm); }
+.item { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--meeting); border-radius:8px; padding:11px 13px; margin-bottom:9px; cursor:grab; transition:all .15s; position:relative; box-shadow:var(--shadow-sm); }
 .item:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
 .item:active { cursor:grabbing; }
 .item.dragging { opacity:.35; }
@@ -290,9 +290,12 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
     position:absolute; inset:0; border-radius:7px;
     background:rgba(255,255,255,0);
     display:flex; align-items:center; justify-content:center; gap:10px;
+    flex-wrap:wrap;
     opacity:0; pointer-events:none;
     transition:background .18s, opacity .18s;
     z-index:2;
+    min-height:100%;
+    padding:8px;
 }
 .item:hover .item-hover-overlay { background:rgba(255,255,255,.92); opacity:1; pointer-events:auto; }
 .item.done:hover .item-hover-overlay { background:rgba(255,255,255,.95); opacity:1; pointer-events:auto; }
@@ -303,6 +306,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
     padding:7px 13px; cursor:pointer; text-transform:uppercase; letter-spacing:.6px;
     transition:all .15s; display:flex; align-items:center; gap:5px; white-space:nowrap;
     box-shadow:var(--shadow-sm);
+    flex-shrink:0;
 }
 .hov-btn:hover { border-color:var(--text-secondary); box-shadow:var(--shadow-md); }
 .hov-btn.del:hover { border-color:var(--danger); color:var(--danger); background:rgba(229,62,62,.05); }
@@ -421,6 +425,129 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .cat-pill.active-pto     { border-color:var(--pto);     color:var(--pto);     background:rgba(138,138,138,.08); }
 
 .hidden { display:none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1400px) {
+    .layout { grid-template-columns: 300px 1fr; }
+    .sidebar { padding: 24px 20px; }
+}
+
+@media (max-width: 1200px) {
+    .layout { grid-template-columns: 280px 1fr; }
+    .header { padding: 18px 24px; }
+    .header h1 { font-size: 24px; }
+    .main-area { padding: 24px 20px; }
+    
+    /* Compact hover overlay buttons - icons only */
+    .hov-btn { padding: 6px 10px; font-size: 10px; letter-spacing: .4px; }
+    .hov-btn .btn-text { display: none; }
+    .item-hover-overlay { gap: 6px; }
+}
+
+@media (max-width: 1024px) {
+    .layout { grid-template-columns: 260px 1fr; }
+    
+    /* Stack hover buttons vertically */
+    .item-hover-overlay { 
+        flex-direction: column; 
+        gap: 5px; 
+        padding: 8px;
+    }
+    .hov-btn { 
+        padding: 5px 10px; 
+        font-size: 10px; 
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Smaller day headers */
+    .day-col-hdr { font-size: 11px; padding: 8px 10px; }
+    .time-wrap { padding: 8px 10px; }
+    .time-top { font-size: 11px; }
+    .time-flex-note { font-size: 9px; }
+    
+    /* Compact items */
+    .item { padding: 9px 11px; margin-bottom: 7px; }
+    .item-name { font-size: 13px; }
+    .item-meta { font-size: 10px; }
+    .priority-badge { font-size: 9px; padding: 1px 5px; }
+    .rec-badge { font-size: 8px; padding: 1px 4px; }
+}
+
+@media (max-width: 900px) {
+    /* Switch to stacked layout */
+    .layout { 
+        grid-template-columns: 1fr; 
+        grid-template-rows: auto 1fr;
+    }
+    .sidebar { 
+        border-right: none; 
+        border-bottom: 1px solid var(--border);
+        max-height: 45vh;
+        overflow-y: auto;
+    }
+    .main-area { padding: 20px 16px; }
+    
+    /* 2-row week grid on tablet */
+    .week-grid { 
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important; 
+        gap: 12px;
+    }
+    .day-col { min-height: 280px; }
+    
+    /* Restore horizontal hover buttons with icons only */
+    .item-hover-overlay { 
+        flex-direction: row; 
+        gap: 8px;
+        padding: 0;
+    }
+    .hov-btn { 
+        width: auto;
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+    
+    /* Header adjustments */
+    .header { flex-wrap: wrap; gap: 12px; padding: 16px 20px; }
+    .header h1 { font-size: 22px; }
+    .header-sub { font-size: 11px; }
+    .hdr-btns { gap: 8px; }
+    .btn-hdr { padding: 8px 12px; font-size: 12px; }
+    
+    /* Progress section */
+    .progress-header { flex-wrap: wrap; gap: 10px; }
+    .progress-stats { gap: 10px; }
+    .progress-pct { font-size: 18px; }
+}
+
+@media (max-width: 600px) {
+    .header-left .compass { display: none; }
+    .header h1 { font-size: 20px; }
+    .btn-hdr span { display: none; }
+    
+    .week-grid { 
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+    .day-col { min-height: 200px; padding: 14px; }
+    .day-col-hdr { margin: -14px -14px 12px; padding: 10px 14px; }
+    
+    /* Full width hover overlay */
+    .item-hover-overlay { justify-content: space-around; }
+    .hov-btn { padding: 10px 16px; }
+    
+    .summary-box { padding: 20px; }
+    .summary-out { padding: 16px; font-size: 12px; }
+    
+    /* Sidebar sections */
+    .sidebar { padding: 20px 16px; max-height: 50vh; }
+    .sec-title { font-size: 11px; }
+    .cat-pills { flex-wrap: wrap; }
+    .cat-pill { flex: 1 1 45%; }
+    
+    .progress-section { padding: 16px 18px; }
+    .progress-title { font-size: 11px; }
+}
 </style>
 </head>
 <body>
@@ -485,11 +612,11 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 
    <div class="step" id="s6">
     <span class="step-emoji">🔁</span>
-    <h2>Any recurring meetings?</h2>
-    <p>Add meetings that repeat on a schedule. They'll appear as suggestions each week. Skip this and add them later if you prefer.</p>
+    <h2>Any recurring items?</h2>
+    <p>Add meetings, tasks, admin, or PTO that repeat on a schedule. They'll appear as suggestions each week. Skip this and add them later if you prefer.</p>
     <div class="wiz-rec-form">
      <div class="wr-row"><input class="wr-name" type="text" id="wrName" placeholder="e.g. Team standup"><input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.25" min="0.25"></div>
-     <div class="wr-row"><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
+     <div class="wr-row"><select id="wrCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="wrDay"></select><select id="wrCadence"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="wrMonthDay" class="hidden" style="width:80px;"></select></div>
      <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
     </div>
     <div class="wiz-rec-pills" id="wizRecPills"></div>
@@ -577,7 +704,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
    <div id="parityRow" class="hidden parity-row"><span>Bi-weekly phase off?</span><button class="parity-btn" onclick="flipParity()">Flip</button></div>
    <div class="wiz-rec-form" style="margin-top:8px;">
     <div class="wr-row"><input class="wr-name" type="text" id="sRecName" placeholder="New recurring…"><input class="wr-dur" type="number" id="sRecDur" value="0.5" step="0.25" min="0.25"></div>
-    <div class="wr-row"><select id="sRecDay"></select><select id="sRecCadence" onchange="onSidebarCadenceChange()"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="sRecMonthDay" class="hidden" style="width:80px;"></select></div>
+    <div class="wr-row"><select id="sRecCat"><option value="meetings">Meeting</option><option value="tasks">Task</option><option value="admin">Admin</option><option value="pto">PTO</option></select><select id="sRecDay"></select><select id="sRecCadence" onchange="onSidebarCadenceChange()"><option value="weekly">Every week</option><option value="biweekly">Every other week</option><option value="monthly">Once a month</option><option value="daily">Every work day</option></select><select id="sRecMonthDay" class="hidden" style="width:80px;"></select></div>
     <button class="wr-add" onclick="sidebarAddRecurring()">+ Add</button>
    </div>
 
@@ -691,7 +818,11 @@ function confirmSuggestion(stateKey,recId,day){
     weekState[wk].confirmed.push(stateKey);
     const rec=cfg.recurring.find(r=>r.id===recId); if(!rec) return;
     if(!data[day]) data[day]={meetings:[],tasks:[],other:[]};
-    data[day].meetings.push({name:rec.name,duration:rec.duration,completed:false,recurringId:recId,priority:false});
+    const cat=rec.category||'meetings';
+    const item={name:rec.name,duration:rec.duration,completed:false,recurringId:recId,priority:false};
+    if(cat==='meetings') data[day].meetings.push(item);
+    else if(cat==='tasks') data[day].tasks.push(item);
+    else data[day].other.push({...item,subtype:cat,fullDay:false});
     save(); render();
 }
 function dismissSuggestion(stateKey){
@@ -717,6 +848,7 @@ function ensureData(){
         });
     });
     if(!cfg.recurring) cfg.recurring=[];
+    cfg.recurring.forEach(r=>{ if(!r.category) r.category='meetings'; });
     if(cfg.parityFlip===undefined) cfg.parityFlip=false;
     if(cfg.flexPct===undefined) cfg.flexPct=20;
 }
@@ -803,19 +935,24 @@ function calcBiweeklyPhase(){ return Math.round((getMonday(new Date())-new Date(
 function wizAddRecurring(){
     const name=document.getElementById('wrName').value.trim();
     const dur=parseFloat(document.getElementById('wrDur').value);
+    const cat=document.getElementById('wrCat').value;
     const day=document.getElementById('wrDay').value;
     const cadence=document.getElementById('wrCadence').value;
     if(!name||!dur) return;
-    cfg.recurring.push({ id:uid(),name,duration:dur,day,cadence, monthDay:cadence==='monthly'?+document.getElementById('wrMonthDay').value:undefined, biweeklyPhase:cadence==='biweekly'?calcBiweeklyPhase():undefined });
+    cfg.recurring.push({ id:uid(),name,duration:dur,category:cat,day,cadence, monthDay:cadence==='monthly'?+document.getElementById('wrMonthDay').value:undefined, biweeklyPhase:cadence==='biweekly'?calcBiweeklyPhase():undefined });
     document.getElementById('wrName').value=''; document.getElementById('wrDur').value='0.5';
     renderWizRecPills();
 }
 function wizRemoveRecurring(id){ cfg.recurring=cfg.recurring.filter(r=>r.id!==id); renderWizRecPills(); }
 function renderWizRecPills(){
     const el=document.getElementById('wizRecPills'); if(!el) return;
+    const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
+    const catColors={meetings:'meeting',tasks:'task',admin:'admin',pto:'pto'};
     el.innerHTML=cfg.recurring.map(r=>{
         const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':r.cadence==='daily'?'Every work day':`Monthly (${ordinal(r.monthDay)})`;
-        return `<div class="wiz-rec-pill"><div class="wp-left"><div class="wp-dot"></div><span>${r.name} · ${r.duration}h · ${r.cadence==='daily'?'All days':r.day} · ${cadL}</span></div><button class="wp-rm" onclick="wizRemoveRecurring('${r.id}')">✕</button></div>`;
+        const cat=r.category||'meetings';
+        const catL=catLabels[cat];
+        return `<div class="wiz-rec-pill"><div class="wp-left"><div class="wp-dot" style="background:var(--${catColors[cat]})"></div><span>${r.name} · ${r.duration}h · ${catL} · ${r.cadence==='daily'?'All days':r.day} · ${cadL}</span></div><button class="wp-rm" onclick="wizRemoveRecurring('${r.id}')">✕</button></div>`;
     }).join('');
 }
 function wizardDone(){ cfg.flexPct=+document.getElementById('wFlexSlider').value; ensureData(); save(); document.getElementById('wizardOverlay').classList.add('hidden'); showApp(); }
@@ -843,10 +980,11 @@ function onSidebarCadenceChange(){
 function sidebarAddRecurring(){
     const name=document.getElementById('sRecName').value.trim();
     const dur=parseFloat(document.getElementById('sRecDur').value);
+    const cat=document.getElementById('sRecCat').value;
     const day=document.getElementById('sRecDay').value;
     const cadence=document.getElementById('sRecCadence').value;
     if(!name||!dur) return;
-    cfg.recurring.push({ id:uid(),name,duration:dur,day,cadence, monthDay:cadence==='monthly'?+document.getElementById('sRecMonthDay').value:undefined, biweeklyPhase:cadence==='biweekly'?calcBiweeklyPhase():undefined });
+    cfg.recurring.push({ id:uid(),name,duration:dur,category:cat,day,cadence, monthDay:cadence==='monthly'?+document.getElementById('sRecMonthDay').value:undefined, biweeklyPhase:cadence==='biweekly'?calcBiweeklyPhase():undefined });
     document.getElementById('sRecName').value=''; document.getElementById('sRecDur').value='0.5';
     save(); render();
 }
@@ -876,10 +1014,10 @@ function setCat(cat){
     document.querySelectorAll('.cat-pill').forEach(p=>p.className='cat-pill');
     const ac={meetings:'active-meeting',tasks:'active-task',admin:'active-admin',pto:'active-pto'};
     const pill=document.querySelector(`.cat-pill[data-cat="${cat}"]`); if(pill) pill.classList.add(ac[cat]);
-    document.getElementById('priorityWrap').classList.toggle('hidden', cat==='admin'||cat==='pto');
+    document.getElementById('priorityWrap').classList.toggle('hidden', cat==='pto');
     document.getElementById('fullDayToggleWrap').classList.toggle('hidden', cat!=='pto');
     if(cat!=='pto'){ isFullDay=false; syncFullDayUI(); }
-    if(cat==='admin'||cat==='pto'){ isPriority=false; syncPriorityUI(); }
+    if(cat==='pto'){ isPriority=false; syncPriorityUI(); }
     document.getElementById('uAddBtn').textContent={meetings:'Add Meeting',tasks:'Add Task',admin:'Add Admin',pto:'Add PTO'}[cat];
     document.getElementById('uName').placeholder={meetings:'e.g. Team standup',tasks:'e.g. Write proposal',admin:'e.g. Email cleanup',pto:'e.g. Dentist appt'}[cat];
 }
@@ -979,15 +1117,24 @@ function renderSuggestions(){
     const pending=getPendingSuggestions();
     const tray=document.getElementById('suggestionsTray');
     if(!pending.length){ tray.innerHTML=''; return; }
-    tray.innerHTML=`<div class="suggestions-tray"><div class="suggestions-title">📅 Recurring Suggestions <span class="s-count">${pending.length}</span></div>${pending.map(s=>`<div class="suggestion-item"><div class="si-inner"><div class="si-name">${s.rec.name}</div><div class="si-meta">${s.day} · ${s.rec.duration}h · ${s.rec.cadence}</div></div><div class="si-btns"><button class="si-btn add" onclick="confirmSuggestion('${s.stateKey}','${s.rec.id}','${s.day}')">Add</button><button class="si-btn skip" onclick="dismissSuggestion('${s.stateKey}')">Skip</button></div></div>`).join('')}</div>`;
+    const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
+    tray.innerHTML=`<div class="suggestions-tray"><div class="suggestions-title">📅 Recurring Suggestions <span class="s-count">${pending.length}</span></div>${pending.map(s=>{
+        const cat=s.rec.category||'meetings';
+        const catL=catLabels[cat];
+        return `<div class="suggestion-item"><div class="si-inner"><div class="si-name">${s.rec.name}</div><div class="si-meta">${catL} · ${s.day} · ${s.rec.duration}h · ${s.rec.cadence}</div></div><div class="si-btns"><button class="si-btn add" onclick="confirmSuggestion('${s.stateKey}','${s.rec.id}','${s.day}')">Add</button><button class="si-btn skip" onclick="dismissSuggestion('${s.stateKey}')">Skip</button></div></div>`;
+    }).join('')}</div>`;
 }
 function renderRecChips(){
     const el=document.getElementById('recChips');
     const hasBi=cfg.recurring.some(r=>r.cadence==='biweekly');
     document.getElementById('parityRow').classList.toggle('hidden',!hasBi);
+    const catLabels={meetings:'Meeting',tasks:'Task',admin:'Admin',pto:'PTO'};
+    const catColors={meetings:'meeting',tasks:'task',admin:'admin',pto:'pto'};
     el.innerHTML=cfg.recurring.map(r=>{
         const cadL=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Biweekly':r.cadence==='daily'?'Daily':`Monthly (${ordinal(r.monthDay)})`;
-        return `<div class="rec-chip"><div class="rc-inner"><div class="rc-name">${r.name}</div><div class="rc-meta">${r.cadence==='daily'?'All work days':r.day} · ${r.duration}h · ${cadL}</div></div><button class="rc-del" onclick="deleteRecurring('${r.id}')">✕</button></div>`;
+        const cat=r.category||'meetings';
+        const catL=catLabels[cat];
+        return `<div class="rec-chip" style="border-left-color:var(--${catColors[cat]})"><div class="rc-inner"><div class="rc-name">${r.name}</div><div class="rc-meta">${catL} · ${r.cadence==='daily'?'All work days':r.day} · ${r.duration}h · ${cadL}</div></div><button class="rc-del" onclick="deleteRecurring('${r.id}')">✕</button></div>`;
     }).join('');
 }
 
@@ -1037,7 +1184,7 @@ function renderWeek(){
                 const priorityBadge=i.priority?`<span class="priority-badge">⚡ Priority</span>`:'';
                 const recBadge=i.recurringId?'<span class="rec-badge">Recurring</span>':'';
                 const priorityBtnClass=i.priority?'priority-on':'';
-                const canHavePriority=(i.cat==='meetings'||i.cat==='tasks');
+                const canHavePriority=(i.cat==='meetings'||i.cat==='tasks'||(i.cat==='other'&&i.type==='admin'));
                 const priorityBtn=canHavePriority?`<button class="hov-btn ${priorityBtnClass}" onclick="event.stopPropagation();toggleItemPriority('${day}','${i.cat}',${i.idx})">⚡</button>`:'';
                 return `<div class="item ${typeClass} ${done} ${priorityClass}" draggable="true" ondragstart="onDragStart(event,'${day}','${i.cat}',${i.idx})" ondragend="onDragEnd(event)" data-day="${day}" data-cat="${i.cat}" data-idx="${i.idx}">
                     <div class="item-top">
@@ -1048,7 +1195,7 @@ function renderWeek(){
                         </div>
                     </div>
                     <div class="item-hover-overlay">
-                        <button class="hov-btn" onclick="event.stopPropagation();startInlineEdit('${day}','${i.cat}',${i.idx})">✏️ Edit</button>
+                        <button class="hov-btn" onclick="event.stopPropagation();startInlineEdit('${day}','${i.cat}',${i.idx})">✏️<span class="btn-text"> Edit</span></button>
                         ${priorityBtn}
                         <button class="hov-btn del" onclick="event.stopPropagation();deleteItem('${day}','${i.cat}',${i.idx})">🗑️</button>
                     </div>
@@ -1097,7 +1244,7 @@ function renderStats(){
         let u=0;
         (data[d]?.meetings||[]).forEach(i=>{ M+=i.duration; u+=i.duration; if(i.priority){ priorityCount++; if(i.completed) priorityDone++; } });
         (data[d]?.tasks||[]).forEach(i=>{ T+=i.duration; u+=i.duration; if(i.priority){ priorityCount++; if(i.completed) priorityDone++; } });
-        (data[d]?.other||[]).forEach(i=>{ if(i.subtype==='pto') P+=i.duration; else A+=i.duration; u+=i.duration; });
+        (data[d]?.other||[]).forEach(i=>{ if(i.subtype==='pto') P+=i.duration; else { A+=i.duration; if(i.priority){ priorityCount++; if(i.completed) priorityDone++; } } u+=i.duration; });
         if(u>dh) over++;
     });
     const tot=M+T+A+P;
@@ -1166,7 +1313,7 @@ function renderSummary(){
             dl.push(`  • ${i.name}${flag} (${i.duration}h)`);
             cT+=i.duration; any=true;
         });
-        (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{ dl.push(`  • ${i.name} (${i.duration}h · ${i.subtype==='pto'?'PTO':'Admin'}${i.fullDay?' – Full Day':''})`); if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration; any=true; });
+        (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{ const flag=(i.subtype==='admin'&&i.priority)?' ⚡':''; dl.push(`  • ${i.name}${flag} (${i.duration}h · ${i.subtype==='pto'?'PTO':'Admin'}${i.fullDay?' – Full Day':''})`); if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration; any=true; });
         if(dl.length){ lines.push(day.toUpperCase()); lines.push('───────────────────────────'); lines.push(...dl); lines.push(''); }
     });
     if(!any){ document.getElementById('summaryOut').innerHTML='<span class="summary-ph">Check off completed items to build your weekly log…</span>'; return; }
