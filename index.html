@@ -10,9 +10,17 @@
         * { margin:0; padding:0; box-sizing:border-box; }
 
         :root {
-            --meeting:#667eea; --task:#48bb78; --admin:#f6ad55; --pto:#666;
+            --meeting:#667eea; --meeting-light:#9bb5f5;
+            --task:#48bb78;    --task-light:#7edfaa;
+            --admin:#f6ad55;   --admin-light:#ffd08a;
+            --pto:#666;        --pto-light:#999;
             --bg:#000; --card:#0a0a0a; --card-hover:#111;
             --border:#222; --text:#fff; --muted:#888; --danger:#ff4444;
+
+            --grad-meeting: linear-gradient(135deg, var(--meeting), var(--meeting-light));
+            --grad-task:    linear-gradient(135deg, var(--task),    var(--task-light));
+            --grad-admin:   linear-gradient(135deg, var(--admin),   var(--admin-light));
+            --grad-pto:     linear-gradient(135deg, var(--pto),     var(--pto-light));
         }
 
         body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
@@ -28,7 +36,7 @@
             width:520px; max-width:92vw; overflow:hidden;
         }
         .progress-bar { height:3px; background:var(--border); }
-        .progress-fill { height:100%; background:var(--task); transition:width .4s cubic-bezier(.4,0,.2,1); }
+        .progress-fill { height:100%; background-image:var(--grad-task); transition:width .4s cubic-bezier(.4,0,.2,1); }
         .panel-body { padding:48px 40px 40px; }
 
         .step { display:none; animation:fadeUp .3s ease; }
@@ -238,7 +246,7 @@
             display:flex; align-items:center; gap:8px;
         }
         .suggestions-title .s-count {
-            background:var(--meeting); color:#fff; font-size:10px;
+            background-image:var(--grad-meeting); color:#fff; font-size:10px;
             padding:2px 7px; border-radius:10px; font-weight:700;
         }
         .suggestion-item {
@@ -256,12 +264,12 @@
             cursor:pointer; font-family:inherit; border:none; transition:all .15s;
             text-transform:uppercase; letter-spacing:.5px;
         }
-        .si-btn.add { background:var(--meeting); color:#fff; }
-        .si-btn.add:hover { background:#7b8ef5; transform:translateY(-1px); }
+        .si-btn.add { background-image:var(--grad-meeting); color:#fff; }
+        .si-btn.add:hover { filter:brightness(1.18); transform:translateY(-1px); }
         .si-btn.skip { background:transparent; color:var(--muted); border:1px solid var(--border); }
         .si-btn.skip:hover { border-color:#555; color:var(--text); }
 
-        /* ─── wizard recurring mini-form ─── */
+        /* ─── wizard / sidebar recurring mini-form ─── */
         .wiz-rec-form {
             background:var(--card); border:1px solid var(--border);
             border-radius:8px; padding:16px; margin-bottom:14px;
@@ -276,13 +284,17 @@
         .wiz-rec-form input:focus, .wiz-rec-form select:focus { outline:none; border-color:#555; }
         .wiz-rec-form .wr-name { flex:1; min-width:0; }
         .wiz-rec-form .wr-dur { width:68px; text-align:center; font-family:'DM Mono',monospace; }
+        /* Add button — full-width, sits in its own row below the selects */
         .wiz-rec-form .wr-add {
-            background:var(--meeting); color:#fff; border:none;
+            width:100%; margin-top:4px;
+            background-image:var(--grad-meeting); color:#fff; border:none;
             padding:9px 14px; border-radius:6px; font-size:11px; font-weight:700;
             cursor:pointer; font-family:inherit; text-transform:uppercase;
-            letter-spacing:.5px; transition:all .15s; white-space:nowrap;
+            letter-spacing:.5px; transition:all .15s;
         }
-        .wiz-rec-form .wr-add:hover { background:#7b8ef5; }
+        .wiz-rec-form .wr-add:hover { filter:brightness(1.18); transform:translateY(-1px); }
+        /* dim the day select when "Every work day" is chosen */
+        .wiz-rec-form select:disabled { opacity:.35; }
 
         /* saved recurring pills in wizard */
         .wiz-rec-pills { margin-top:12px; }
@@ -341,6 +353,7 @@
             border-radius:10px 10px 0 0;
         }
 
+        /* capacity bar — gradient fills */
         .time-wrap { background:#000; border:1px solid var(--border); border-radius:6px; padding:10px 12px; margin-bottom:16px; }
         .time-top { display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px; }
         .time-used { font-weight:600; }
@@ -349,9 +362,9 @@
         .time-free.warn{ color:var(--admin); }
         .time-free.over{ color:var(--danger); }
         .tbar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-        .tbar-fill { height:100%; background:var(--text); border-radius:3px; transition:width .3s,background .3s; }
-        .tbar-fill.warn{ background:var(--admin); }
-        .tbar-fill.over{ background:var(--danger); }
+        .tbar-fill        { height:100%; border-radius:3px; transition:width .3s; background-image:var(--grad-task); }
+        .tbar-fill.warn   { background-image:var(--grad-admin); }
+        .tbar-fill.over   { background-image:linear-gradient(135deg,var(--danger),#ff7777); }
 
         /* PTO full-day banner */
         .pto-banner {
@@ -383,7 +396,7 @@
 
         .item-top { display:flex; align-items:flex-start; gap:9px; }
 
-        /* #8 custom checkbox */
+        /* custom checkbox */
         .item-cb {
             -webkit-appearance:none; appearance:none;
             margin-top:3px; width:16px; height:16px; flex-shrink:0;
@@ -404,18 +417,48 @@
         .item-name { font-size:14px; font-weight:600; margin-bottom:2px; }
         .item-meta { font-size:11px; color:var(--muted); }
 
-        /* #5 remove button — hidden until card hover */
-        .item-rm {
-            background:none; border:none; color:var(--muted); cursor:pointer;
-            font-size:10px; font-weight:700; text-transform:uppercase;
-            letter-spacing:.5px; font-family:inherit; transition:color .2s, opacity .15s;
+        /* hover actions row: Edit + Remove */
+        .item-actions {
             position:absolute; top:10px; right:11px;
-            opacity:0; pointer-events:none;
+            display:flex; gap:12px; align-items:center;
+            opacity:0; pointer-events:none; transition:opacity .15s;
         }
-        .item:hover .item-rm { opacity:1; pointer-events:auto; }
+        .item:hover .item-actions { opacity:1; pointer-events:auto; }
+        .item-rm, .item-ed {
+            background:none; border:none; cursor:pointer;
+            font-size:10px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.5px; font-family:inherit; transition:color .2s; padding:0;
+            color:var(--muted);
+        }
+        .item-ed:hover { color:var(--text); }
         .item-rm:hover { color:var(--danger); }
 
-        /* recurring badge on confirmed items */
+        /* ── inline-edit state ── */
+        .item.editing { cursor:default; }
+        .item.editing:hover { transform:none; background:var(--card-hover); }
+        .item-edit-row {
+            display:flex; align-items:center; gap:8px; width:100%;
+        }
+        .item-edit-row input {
+            background:#1a1a1a; border:1px solid #444; border-radius:5px;
+            color:#fff; font-family:inherit; font-size:13px;
+            padding:5px 8px; transition:border-color .2s;
+        }
+        .item-edit-row input:focus { outline:none; border-color:#666; }
+        .item-edit-row .ef-name { flex:1; min-width:0; }
+        .item-edit-row .ef-dur  { width:54px; text-align:center; font-family:'DM Mono',monospace; }
+        .ef-btns { display:flex; gap:5px; flex-shrink:0; }
+        .ef-btns button {
+            background:none; border:none; cursor:pointer;
+            font-size:15px; padding:2px 5px; border-radius:4px;
+            transition:all .15s;
+        }
+        .ef-btns .ef-save   { color:var(--task-light); }
+        .ef-btns .ef-save:hover { background:rgba(72,187,120,.15); }
+        .ef-btns .ef-cancel { color:var(--muted); }
+        .ef-btns .ef-cancel:hover { background:rgba(255,255,255,.07); color:var(--text); }
+
+        /* recurring badge */
         .rec-badge {
             display:inline-block; font-size:9px; font-weight:700;
             background:rgba(102,126,234,.2); color:var(--meeting);
@@ -440,7 +483,7 @@
         }
         .summary-ph { color:#555; font-style:italic; font-family:'DM Sans',sans-serif; }
 
-        /* ─── unified add form — category pills ─── */
+        /* ─── category pills ─── */
         .cat-pills { display:flex; gap:6px; margin-bottom:14px; }
         .cat-pill {
             flex:1; padding:8px 4px; border-radius:6px; text-align:center;
@@ -449,10 +492,22 @@
             color:var(--muted); transition:all .15s; font-family:inherit;
         }
         .cat-pill:hover { border-color:#444; color:var(--text); }
-        .cat-pill.active-meeting { border-color:var(--meeting); background:rgba(102,126,234,.12); color:var(--meeting); }
-        .cat-pill.active-task    { border-color:var(--task);    background:rgba(72,187,120,.12);  color:var(--task); }
-        .cat-pill.active-admin   { border-color:var(--admin);   background:rgba(246,173,85,.12);  color:var(--admin); }
-        .cat-pill.active-pto     { border-color:var(--pto);     background:rgba(102,102,102,.18); color:#aaa; }
+        .cat-pill.active-meeting {
+            border-color:var(--meeting); color:var(--meeting-light);
+            background:linear-gradient(135deg, rgba(102,126,234,.18), rgba(155,181,245,.06));
+        }
+        .cat-pill.active-task {
+            border-color:var(--task); color:var(--task-light);
+            background:linear-gradient(135deg, rgba(72,187,120,.18), rgba(126,223,170,.06));
+        }
+        .cat-pill.active-admin {
+            border-color:var(--admin); color:var(--admin-light);
+            background:linear-gradient(135deg, rgba(246,173,85,.18), rgba(255,208,138,.06));
+        }
+        .cat-pill.active-pto {
+            border-color:var(--pto); color:var(--pto-light);
+            background:linear-gradient(135deg, rgba(102,102,102,.22), rgba(153,153,153,.06));
+        }
 
         .hidden { display:none !important; }
     </style>
@@ -465,7 +520,6 @@
     <div class="progress-bar"><div class="progress-fill" id="wProg" style="width:20%"></div></div>
     <div class="panel-body">
 
-      <!-- 1: Welcome -->
       <div class="step active" id="s1">
         <span class="step-emoji">👋</span>
         <h2>Welcome to Weekly Planner</h2>
@@ -473,7 +527,6 @@
         <div class="nav-row"><span class="indicator">1 of 5</span><button class="btn-solid" onclick="goStep(2)">Let's Go</button></div>
       </div>
 
-      <!-- 2: Work hours -->
       <div class="step" id="s2">
         <span class="step-emoji">🕘</span>
         <h2>When do you work?</h2>
@@ -483,7 +536,6 @@
         <div class="nav-row"><span class="indicator">2 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(1)">Back</button><button class="btn-solid" onclick="goStep(3)">Next</button></div></div>
       </div>
 
-      <!-- 3: Breaks -->
       <div class="step" id="s3">
         <span class="step-emoji">☕</span>
         <h2>How do you take breaks?</h2>
@@ -494,7 +546,6 @@
         <div class="nav-row"><span class="indicator">3 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(2)">Back</button><button class="btn-solid" onclick="goStep(4)">Next</button></div></div>
       </div>
 
-      <!-- 4: Work days -->
       <div class="step" id="s4">
         <span class="step-emoji">📅</span>
         <h2>Which days do you work?</h2>
@@ -504,15 +555,15 @@
         <div class="nav-row"><span class="indicator">4 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(3)">Back</button><button class="btn-solid" onclick="goStep(5)">Next</button></div></div>
       </div>
 
-      <!-- 5: Recurring meetings (skippable) -->
+      <!-- 5: Recurring — button is its own row now -->
       <div class="step" id="s5">
         <span class="step-emoji">🔁</span>
         <h2>Any recurring meetings?</h2>
-        <p>Add meetings that happen every week — or every other week. They'll show up as suggestions each week. You can always skip this and add them later.</p>
+        <p>Add meetings that repeat on a schedule. They'll show up as suggestions each week. You can always skip this and add them later.</p>
         <div class="wiz-rec-form">
           <div class="wr-row">
             <input class="wr-name" type="text" id="wrName" placeholder="e.g. Team standup">
-            <input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.5" min="0.5">
+            <input class="wr-dur" type="number" id="wrDur" value="0.5" step="0.25" min="0.25">
           </div>
           <div class="wr-row">
             <select id="wrDay"></select>
@@ -520,12 +571,11 @@
               <option value="weekly">Every week</option>
               <option value="biweekly">Every other week</option>
               <option value="monthly">Once a month</option>
+              <option value="daily">Every work day</option>
             </select>
-            <select id="wrMonthDay" class="hidden" style="width:80px;">
-              <!-- populated dynamically -->
-            </select>
-            <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
+            <select id="wrMonthDay" class="hidden" style="width:80px;"></select>
           </div>
+          <button class="wr-add" onclick="wizAddRecurring()">+ Add</button>
         </div>
         <div class="wiz-rec-pills" id="wizRecPills"></div>
         <div class="nav-row"><span class="indicator">5 of 5</span><div class="nav-btns"><button class="btn-ghost" onclick="goStep(4)">Back</button><button class="btn-solid" onclick="wizardDone()">Start Planning</button></div></div>
@@ -579,16 +629,15 @@
       <!-- Recurring (manage) -->
       <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Recurring</div>
       <div id="recChips"></div>
-      <!-- biweekly parity row, shown only when biweekly recurrings exist -->
       <div id="parityRow" class="hidden parity-row">
         <span>Bi-weekly phase off?</span>
         <button class="parity-btn" onclick="flipParity()">Flip</button>
       </div>
-      <!-- add-new form in sidebar -->
+      <!-- sidebar recurring form — button is its own row -->
       <div class="wiz-rec-form" style="margin-top:8px;">
         <div class="wr-row">
           <input class="wr-name" type="text" id="sRecName" placeholder="New recurring…">
-          <input class="wr-dur" type="number" id="sRecDur" value="0.5" step="0.5" min="0.5">
+          <input class="wr-dur" type="number" id="sRecDur" value="0.5" step="0.25" min="0.25">
         </div>
         <div class="wr-row">
           <select id="sRecDay"></select>
@@ -596,10 +645,11 @@
             <option value="weekly">Every week</option>
             <option value="biweekly">Every other week</option>
             <option value="monthly">Once a month</option>
+            <option value="daily">Every work day</option>
           </select>
           <select id="sRecMonthDay" class="hidden" style="width:80px;"></select>
-          <button class="wr-add" onclick="sidebarAddRecurring()">+ Add</button>
         </div>
+        <button class="wr-add" onclick="sidebarAddRecurring()">+ Add</button>
       </div>
       <div class="divider"></div>
 
@@ -620,7 +670,7 @@
       </div>
       <div class="row2" id="uDayHourRow">
         <div class="ig"><label>Day</label><select id="uDay"></select></div>
-        <div class="ig" id="uHoursWrap"><label>Hours</label><input type="number" id="uDur" value="0.5" step="0.5" min="0.5"></div>
+        <div class="ig" id="uHoursWrap"><label>Hours</label><input type="number" id="uDur" value="0.5" step="0.25" min="0.25"></div>
       </div>
       <button class="add-btn" id="uAddBtn" onclick="addUnified()">Add Meeting</button>
       <div class="divider"></div>
@@ -629,7 +679,6 @@
     </div>
 
     <div class="main-area">
-      <!-- suggestions tray lives here, rendered dynamically -->
       <div id="suggestionsTray"></div>
       <div class="week-grid" id="weekGrid"></div>
       <div class="summary-box">
@@ -649,10 +698,16 @@ let cfg={
     start:'09:00', end:'17:00', lunch:30, breakCt:2, breakLen:15,
     days:['Monday','Tuesday','Wednesday','Thursday','Friday'],
     recurring:[],        // [{id, name, duration, day, cadence, monthDay, biweeklyPhase}]
-    parityFlip:false     // global flip for biweekly parity
+    parityFlip:false
 };
-let data={};             // per-day week data
-let weekState={};        // { weekKey: { dismissed:[id…], confirmed:[id…] } }
+let data={};             // per-day arrays
+/*
+ * weekState keys:
+ *   non-daily  →  plain id          e.g. "abc12"
+ *   daily      →  id + "_" + day    e.g. "abc12_Monday"
+ * This lets each day of a daily recurring be dismissed/confirmed independently.
+ */
+let weekState={};        // { weekKey: { dismissed:[…], confirmed:[…] } }
 let drag=null;
 let isFullDay=false;
 
@@ -665,7 +720,6 @@ function dayHours(){
 }
 function weekHours(){ return dayHours()*cfg.days.length; }
 
-/* weekKey = ISO date string of this week's Monday */
 function getMonday(d){
     const date=new Date(d); date.setHours(0,0,0,0);
     const day=date.getDay(); const diff=date.getDate()-(day===0?-6:day-1);
@@ -673,7 +727,7 @@ function getMonday(d){
 }
 function thisWeekKey(){
     const m=getMonday(new Date());
-    return m.toISOString().slice(0,10); // "2026-02-02"
+    return m.toISOString().slice(0,10);
 }
 
 /* ── recurring logic ── */
@@ -681,13 +735,11 @@ function isRecurringDueThisWeek(rec){
     const wk=thisWeekKey();
     const monday=new Date(wk+'T00:00:00');
 
-    if(rec.cadence==='weekly') return true;
+    if(rec.cadence==='weekly' || rec.cadence==='daily') return true;
 
     if(rec.cadence==='biweekly'){
-        // epoch monday = 2024-01-01 (a Monday). Count weeks from there.
         const epoch=new Date('2024-01-01T00:00:00');
         const weeksSinceEpoch=Math.round((monday-epoch)/(7*24*60*60*1000));
-        // phase 0 = even weeks, phase 1 = odd weeks
         const phase=weeksSinceEpoch%2;
         const recPhase=rec.biweeklyPhase||0;
         const effectivePhase=cfg.parityFlip? (1-recPhase) : recPhase;
@@ -695,16 +747,11 @@ function isRecurringDueThisWeek(rec){
     }
 
     if(rec.cadence==='monthly'){
-        // due if the month of this week contains the monthDay
-        // and the monthDay falls within Mon-Sun of this week
         const md=rec.monthDay||1;
-        // check each day Mon-Sun
         for(let i=0;i<7;i++){
             const d=new Date(monday); d.setDate(monday.getDate()+i);
             if(d.getDate()===md){
-                // map JS day name to our day name and check it's in cfg.days
-                const dayName=ALL_DAYS[i]; // Mon=0..Sun=6
-                if(cfg.days.includes(dayName)) return true;
+                if(cfg.days.includes(ALL_DAYS[i])) return true;
             }
         }
         return false;
@@ -714,45 +761,57 @@ function isRecurringDueThisWeek(rec){
 
 function getDayForRecurring(rec){
     if(rec.cadence==='monthly'){
-        // find which day of the week the monthDay lands on this week
         const monday=new Date(thisWeekKey()+'T00:00:00');
         const md=rec.monthDay||1;
         for(let i=0;i<7;i++){
             const d=new Date(monday); d.setDate(monday.getDate()+i);
             if(d.getDate()===md) return ALL_DAYS[i];
         }
-        return rec.day; // fallback
+        return rec.day;
     }
-    return rec.day;
+    return rec.day; // weekly / biweekly use stored day
 }
 
+/*
+ * getPendingSuggestions
+ * Returns [{rec, day, stateKey}].
+ * Daily recurrings fan out into one entry per work day.
+ */
 function getPendingSuggestions(){
     const wk=thisWeekKey();
     const ws=weekState[wk]||{dismissed:[],confirmed:[]};
-    return cfg.recurring.filter(r=>{
-        if(ws.dismissed.includes(r.id)) return false;
-        if(ws.confirmed.includes(r.id)) return false;
-        return isRecurringDueThisWeek(r);
+    const out=[];
+    cfg.recurring.forEach(r=>{
+        if(!isRecurringDueThisWeek(r)) return;
+        if(r.cadence==='daily'){
+            cfg.days.forEach(day=>{
+                const key=r.id+'_'+day;
+                if(ws.dismissed.includes(key)||ws.confirmed.includes(key)) return;
+                out.push({rec:r, day, stateKey:key});
+            });
+        } else {
+            if(ws.dismissed.includes(r.id)||ws.confirmed.includes(r.id)) return;
+            out.push({rec:r, day:getDayForRecurring(r), stateKey:r.id});
+        }
     });
+    return out;
 }
 
-function confirmSuggestion(id){
+function confirmSuggestion(stateKey, recId, day){
     const wk=thisWeekKey();
     if(!weekState[wk]) weekState[wk]={dismissed:[],confirmed:[]};
-    weekState[wk].confirmed.push(id);
-    // actually add to day data
-    const rec=cfg.recurring.find(r=>r.id===id);
+    weekState[wk].confirmed.push(stateKey);
+    const rec=cfg.recurring.find(r=>r.id===recId);
     if(!rec) return;
-    const day=getDayForRecurring(rec);
     if(!data[day]) data[day]={meetings:[],tasks:[],other:[]};
-    data[day].meetings.push({name:rec.name, duration:rec.duration, completed:false, recurringId:id});
+    data[day].meetings.push({name:rec.name, duration:rec.duration, completed:false, recurringId:recId});
     save(); render();
 }
 
-function dismissSuggestion(id){
+function dismissSuggestion(stateKey){
     const wk=thisWeekKey();
     if(!weekState[wk]) weekState[wk]={dismissed:[],confirmed:[]};
-    weekState[wk].dismissed.push(id);
+    weekState[wk].dismissed.push(stateKey);
     save(); render();
 }
 
@@ -764,18 +823,14 @@ function ensureData(){
         if(!data[d].tasks)    data[d].tasks=[];
         if(!data[d].other)    data[d].other=[];
         if(data[d].admin){
-            data[d].admin.forEach(i=>{
-                data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false});
-            });
+            data[d].admin.forEach(i=>{ data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false}); });
             delete data[d].admin;
         }
     });
     Object.keys(data).forEach(d=>{
         if(!data[d].other) data[d].other=[];
         if(data[d].admin){
-            data[d].admin.forEach(i=>{
-                data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false});
-            });
+            data[d].admin.forEach(i=>{ data[d].other.push({name:i.name,duration:i.duration,completed:i.completed||false,subtype:'admin',fullDay:false}); });
             delete data[d].admin;
         }
     });
@@ -807,15 +862,10 @@ function save(){
         }
     } catch(e){
         console.error('Boot error, resetting:',e);
-        localStorage.removeItem('wp_cfg');
-        localStorage.removeItem('wp_data');
-        localStorage.removeItem('wp_weekState');
+        localStorage.removeItem('wp_cfg'); localStorage.removeItem('wp_data'); localStorage.removeItem('wp_weekState');
         data={}; weekState={};
         cfg={start:'09:00',end:'17:00',lunch:30,breakCt:2,breakLen:15,days:['Monday','Tuesday','Wednesday','Thursday','Friday'],recurring:[],parityFlip:false};
-        renderDaysToggle('wDaysGrid');
-        updCalc('wCalcNum');
-        populateMonthDaySelect('wrMonthDay');
-        fillWizRecDaySelect();
+        renderDaysToggle('wDaysGrid'); updCalc('wCalcNum'); populateMonthDaySelect('wrMonthDay'); fillWizRecDaySelect();
     }
 })();
 
@@ -849,7 +899,6 @@ function populateMonthDaySelect(selectId){
     s.innerHTML=MONTH_DAYS.map(n=>`<option value="${n}">${ordinal(n)}</option>`).join('');
 }
 
-/* ── wizard day select for recurring ── */
 function fillWizRecDaySelect(){
     const s=document.getElementById('wrDay');
     if(!s) return;
@@ -861,30 +910,25 @@ function fillWizRecDaySelect(){
 function goStep(n){
     if(n>=3){ cfg.start=document.getElementById('wStart').value; cfg.end=document.getElementById('wEnd').value; }
     if(n>=4){ cfg.lunch=+document.getElementById('wLunch').value||30; cfg.breakCt=+document.getElementById('wBreakCt').value||0; cfg.breakLen=+document.getElementById('wBreakLen').value||15; updCalc('wCalcNum'); }
-    if(n>=5){
-        // refresh the day select in the recurring form in case days changed on step 4
-        fillWizRecDaySelect();
-        renderWizRecPills();
-    }
+    if(n>=5){ fillWizRecDaySelect(); renderWizRecPills(); }
     document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
     document.getElementById('s'+n).classList.add('active');
-    document.getElementById('wProg').style.width=(n*20)+'%'; // 5 steps
+    document.getElementById('wProg').style.width=(n*20)+'%';
 }
 
-/* cadence change handler in wizard */
+/* cadence change — wizard */
 document.addEventListener('DOMContentLoaded',()=>{
     const wrCad=document.getElementById('wrCadence');
     if(wrCad) wrCad.addEventListener('change',()=>{
-        const isMonthly=wrCad.value==='monthly';
-        document.getElementById('wrMonthDay').classList.toggle('hidden',!isMonthly);
+        document.getElementById('wrMonthDay').classList.toggle('hidden', wrCad.value!=='monthly');
+        document.getElementById('wrDay').disabled=(wrCad.value==='daily');
     });
 });
 
 function calcBiweeklyPhase(){
     const monday=getMonday(new Date());
     const epoch=new Date('2024-01-01T00:00:00');
-    const weeksSinceEpoch=Math.round((monday-epoch)/(7*24*60*60*1000));
-    return weeksSinceEpoch%2; // 0 or 1 — matches the phase check in isRecurringDueThisWeek
+    return Math.round((monday-epoch)/(7*24*60*60*1000))%2;
 }
 
 function wizAddRecurring(){
@@ -894,12 +938,10 @@ function wizAddRecurring(){
     const cadence=document.getElementById('wrCadence').value;
     const monthDay=cadence==='monthly'? +document.getElementById('wrMonthDay').value : undefined;
     if(!name||!dur) return;
-
     cfg.recurring.push({
         id:uid(), name, duration:dur, day, cadence, monthDay,
         biweeklyPhase: cadence==='biweekly' ? calcBiweeklyPhase() : undefined
     });
-    // reset form
     document.getElementById('wrName').value='';
     document.getElementById('wrDur').value='0.5';
     renderWizRecPills();
@@ -914,9 +956,10 @@ function renderWizRecPills(){
     const el=document.getElementById('wizRecPills');
     if(!el) return;
     el.innerHTML=cfg.recurring.map(r=>{
-        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':`Monthly (${r.monthDay}th)`;
+        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':r.cadence==='daily'?'Every work day':`Monthly (${ordinal(r.monthDay)})`;
+        const dayShow=r.cadence==='daily'?'All days':r.day;
         return `<div class="wiz-rec-pill">
-            <div class="wp-left"><div class="wp-dot"></div><span>${r.name} · ${r.duration}h · ${r.day} · ${cadLabel}</span></div>
+            <div class="wp-left"><div class="wp-dot"></div><span>${r.name} · ${r.duration}h · ${dayShow} · ${cadLabel}</span></div>
             <button class="wp-rm" onclick="wizRemoveRecurring('${r.id}')">✕</button>
         </div>`;
     }).join('');
@@ -946,8 +989,9 @@ function saveSettings(){
 
 /* ── sidebar recurring ── */
 function onSidebarCadenceChange(){
-    const isMonthly=document.getElementById('sRecCadence').value==='monthly';
-    document.getElementById('sRecMonthDay').classList.toggle('hidden',!isMonthly);
+    const val=document.getElementById('sRecCadence').value;
+    document.getElementById('sRecMonthDay').classList.toggle('hidden', val!=='monthly');
+    document.getElementById('sRecDay').disabled=(val==='daily');
 }
 
 function sidebarAddRecurring(){
@@ -968,28 +1012,27 @@ function sidebarAddRecurring(){
 
 function deleteRecurring(id){
     cfg.recurring=cfg.recurring.filter(r=>r.id!==id);
-    // also clean weekState refs
+    // clean weekState — both plain id and compound id_Day keys
     Object.keys(weekState).forEach(wk=>{
-        if(weekState[wk].confirmed) weekState[wk].confirmed=weekState[wk].confirmed.filter(x=>x!==id);
-        if(weekState[wk].dismissed) weekState[wk].dismissed=weekState[wk].dismissed.filter(x=>x!==id);
+        if(weekState[wk].confirmed) weekState[wk].confirmed=weekState[wk].confirmed.filter(x=> x!==id && !x.startsWith(id+'_'));
+        if(weekState[wk].dismissed) weekState[wk].dismissed=weekState[wk].dismissed.filter(x=> x!==id && !x.startsWith(id+'_'));
     });
     save(); render();
 }
 
 function flipParity(){
     cfg.parityFlip=!cfg.parityFlip;
-    // clear this week's dismissed/confirmed so suggestions re-evaluate
     const wk=thisWeekKey();
     if(weekState[wk]){
-        weekState[wk].dismissed=weekState[wk].dismissed.filter(id=>{
-            const r=cfg.recurring.find(x=>x.id===id);
-            return r && r.cadence!=='biweekly';
-        });
-        weekState[wk].confirmed=weekState[wk].confirmed.filter(id=>{
-            const r=cfg.recurring.find(x=>x.id===id);
-            return r && r.cadence!=='biweekly';
-        });
-        // remove biweekly meetings that were added this week from data
+        // strip biweekly keys only
+        const isBiweeklyKey=key=>{
+            const baseId=key.split('_')[0];
+            const r=cfg.recurring.find(x=>x.id===baseId);
+            return r && r.cadence==='biweekly';
+        };
+        weekState[wk].dismissed=weekState[wk].dismissed.filter(k=>!isBiweeklyKey(k));
+        weekState[wk].confirmed=weekState[wk].confirmed.filter(k=>!isBiweeklyKey(k));
+        // remove biweekly meetings added this week from day data
         cfg.days.forEach(d=>{
             if(data[d]&&data[d].meetings){
                 data[d].meetings=data[d].meetings.filter(m=>{
@@ -1004,24 +1047,18 @@ function flipParity(){
 }
 
 /* ── unified add form ── */
-let activeCat='meetings'; // meetings | tasks | admin | pto
+let activeCat='meetings';
 
 function setCat(cat){
     activeCat=cat;
-    // update pill highlights
-    document.querySelectorAll('.cat-pill').forEach(p=>{
-        p.className='cat-pill'; // reset
-    });
+    document.querySelectorAll('.cat-pill').forEach(p=>{ p.className='cat-pill'; });
     const activeClass={meetings:'active-meeting',tasks:'active-task',admin:'active-admin',pto:'active-pto'};
     const pill=document.querySelector(`.cat-pill[data-cat="${cat}"]`);
     if(pill) pill.classList.add(activeClass[cat]);
-    // Full Day toggle: only show for PTO
     document.getElementById('fullDayToggleWrap').classList.toggle('hidden', cat!=='pto');
     if(cat!=='pto'){ isFullDay=false; syncFullDayUI(); }
-    // button label
     const labels={meetings:'Add Meeting',tasks:'Add Task',admin:'Add Admin',pto:'Add PTO'};
     document.getElementById('uAddBtn').textContent=labels[cat];
-    // placeholder
     const phs={meetings:'e.g. Team standup',tasks:'e.g. Write proposal',admin:'e.g. Email cleanup',pto:'e.g. Dentist appt'};
     document.getElementById('uName').placeholder=phs[cat];
 }
@@ -1031,15 +1068,9 @@ function addUnified(){
     const day=document.getElementById('uDay').value;
     const dur=isFullDay?dayHours():parseFloat(document.getElementById('uDur').value);
     if(!name||!dur) return;
-
-    if(activeCat==='meetings'){
-        data[day].meetings.push({name,duration:dur,completed:false});
-    } else if(activeCat==='tasks'){
-        data[day].tasks.push({name,duration:dur,completed:false});
-    } else {
-        // admin or pto → goes into other[]
-        data[day].other.push({name,duration:dur,subtype:activeCat,fullDay:isFullDay,completed:false});
-    }
+    if(activeCat==='meetings'){ data[day].meetings.push({name,duration:dur,completed:false}); }
+    else if(activeCat==='tasks'){ data[day].tasks.push({name,duration:dur,completed:false}); }
+    else { data[day].other.push({name,duration:dur,subtype:activeCat,fullDay:isFullDay,completed:false}); }
     document.getElementById('uName').value='';
     document.getElementById('uDur').value='0.5';
     isFullDay=false; syncFullDayUI();
@@ -1053,8 +1084,38 @@ function syncFullDayUI(){
     document.getElementById('uHoursWrap').classList.toggle('hidden',isFullDay);
 }
 
+/* ── item CRUD ── */
 function removeItem(day,type,i){ data[day][type].splice(i,1); save(); render(); }
 function toggleDone(day,type,i){ data[day][type][i].completed=!data[day][type][i].completed; save(); render(); }
+
+/* inline edit — swaps card body to two inputs + ✓ / ✕ */
+function startEdit(day,type,i){
+    const item=data[day][type][i];
+    const card=document.querySelector(`.item[data-day="${day}"][data-type="${type}"][data-idx="${i}"]`);
+    if(!card) return;
+    card.classList.add('editing');
+    card.innerHTML=`
+        <div class="item-edit-row">
+            <input class="ef-name" type="text" value="${item.name}" autocomplete="off">
+            <input class="ef-dur" type="number" value="${item.duration}" step="0.25" min="0.25" autocomplete="off">
+            <div class="ef-btns">
+                <button class="ef-save" onclick="saveEdit('${day}','${type}',${i})">✓</button>
+                <button class="ef-cancel" onclick="render()">✕</button>
+            </div>
+        </div>`;
+    card.querySelector('.ef-name').focus();
+}
+
+function saveEdit(day,type,i){
+    const card=document.querySelector(`.item[data-day="${day}"][data-type="${type}"][data-idx="${i}"]`);
+    if(!card) return;
+    const newName=card.querySelector('.ef-name').value.trim();
+    const newDur=parseFloat(card.querySelector('.ef-dur').value);
+    if(!newName||!newDur) return;
+    data[day][type][i].name=newName;
+    data[day][type][i].duration=newDur;
+    save(); render();
+}
 
 /* ── drag ── */
 function dStart(e,day,type,i){ drag={day,type,i}; e.currentTarget.classList.add('dragging'); }
@@ -1087,7 +1148,7 @@ function fillSelects(){
 function showApp(){
     document.getElementById('app').classList.add('on');
     fillSelects();
-    setCat(activeCat); // initialise unified form pill/label/placeholder
+    setCat(activeCat);
     setTimeout(()=>render(),0);
 }
 function render(){ renderSuggestions(); renderRecChips(); renderGrid(); renderPie(); renderStats(); renderSummary(); }
@@ -1103,17 +1164,16 @@ function renderSuggestions(){
             Recurring this week
             <span class="s-count">${pending.length}</span>
         </div>
-        ${pending.map(r=>{
-            const day=getDayForRecurring(r);
-            const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Bi-weekly':`Monthly`;
+        ${pending.map(p=>{
+            const cadLabel=p.rec.cadence==='weekly'?'Weekly':p.rec.cadence==='biweekly'?'Bi-weekly':p.rec.cadence==='daily'?'Daily':'Monthly';
             return `<div class="suggestion-item">
                 <div class="si-inner">
-                    <div class="si-name">${r.name}</div>
-                    <div class="si-meta">${r.duration}h · ${day} · ${cadLabel}</div>
+                    <div class="si-name">${p.rec.name}</div>
+                    <div class="si-meta">${p.rec.duration}h · ${p.day} · ${cadLabel}</div>
                 </div>
                 <div class="si-btns">
-                    <button class="si-btn add" onclick="confirmSuggestion('${r.id}')">Add</button>
-                    <button class="si-btn skip" onclick="dismissSuggestion('${r.id}')">Skip</button>
+                    <button class="si-btn add" onclick="confirmSuggestion('${p.stateKey}','${p.rec.id}','${p.day}')">Add</button>
+                    <button class="si-btn skip" onclick="dismissSuggestion('${p.stateKey}')">Skip</button>
                 </div>
             </div>`;
         }).join('')}
@@ -1124,18 +1184,17 @@ function renderSuggestions(){
 function renderRecChips(){
     const el=document.getElementById('recChips');
     el.innerHTML=cfg.recurring.map(r=>{
-        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':`Monthly (${r.monthDay}th)`;
+        const cadLabel=r.cadence==='weekly'?'Weekly':r.cadence==='biweekly'?'Every other week':r.cadence==='daily'?'Every work day':`Monthly (${ordinal(r.monthDay)})`;
+        const dayShow=r.cadence==='daily'?'All days':r.day;
         return `<div class="rec-chip">
             <div class="rc-inner">
                 <div class="rc-name">${r.name}</div>
-                <div class="rc-meta">${r.duration}h · ${r.day} · ${cadLabel}</div>
+                <div class="rc-meta">${r.duration}h · ${dayShow} · ${cadLabel}</div>
             </div>
             <button class="rc-del" onclick="deleteRecurring('${r.id}')">✕</button>
         </div>`;
     }).join('');
-    // show/hide parity row
-    const hasBiweekly=cfg.recurring.some(r=>r.cadence==='biweekly');
-    document.getElementById('parityRow').classList.toggle('hidden',!hasBiweekly);
+    document.getElementById('parityRow').classList.toggle('hidden', !cfg.recurring.some(r=>r.cadence==='biweekly'));
 }
 
 /* ── grid ── */
@@ -1174,41 +1233,28 @@ function renderGrid(){
             </div>`;
         });
 
-        // meetings
-        M.forEach((it,i)=>{
-            const recBadge=it.recurringId?'<span class="rec-badge">recurring</span>':'';
-            items+=`<div class="item ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','meetings',${i})" ondragend="dEnd(event)">
+        /* shared card builder — adds data-* attrs for edit targeting */
+        function card(it, i, type, colorCls, metaLabel){
+            const recBadge=(type==='meetings'&&it.recurringId)?'<span class="rec-badge">recurring</span>':'';
+            return `<div class="item ${colorCls} ${it.completed?'done':''}" draggable
+                data-day="${day}" data-type="${type}" data-idx="${i}"
+                ondragstart="dStart(event,'${day}','${type}',${i})" ondragend="dEnd(event)">
                 <div class="item-top">
-                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','meetings',${i})">
-                    <div class="item-inner"><div class="item-name">${it.name}${recBadge}</div><div class="item-meta">${it.duration}h · Meeting</div></div>
+                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','${type}',${i})">
+                    <div class="item-inner"><div class="item-name">${it.name}${recBadge}</div><div class="item-meta">${it.duration}h · ${metaLabel}</div></div>
                 </div>
-                <button class="item-rm" onclick="removeItem('${day}','meetings',${i})">Remove</button>
-            </div>`;
-        });
-
-        // tasks
-        T.forEach((it,i)=>{
-            items+=`<div class="item task ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','tasks',${i})" ondragend="dEnd(event)">
-                <div class="item-top">
-                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','tasks',${i})">
-                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · Task</div></div>
+                <div class="item-actions">
+                    <button class="item-ed" onclick="startEdit('${day}','${type}',${i})">Edit</button>
+                    <button class="item-rm" onclick="removeItem('${day}','${type}',${i})">✕</button>
                 </div>
-                <button class="item-rm" onclick="removeItem('${day}','tasks',${i})">Remove</button>
             </div>`;
-        });
+        }
 
-        // other (admin/pto)
+        M.forEach((it,i)=>{ items+=card(it,i,'meetings','','Meeting'); });
+        T.forEach((it,i)=>{ items+=card(it,i,'tasks','task','Task'); });
         O.forEach((it,i)=>{
             if(it.fullDay&&it.subtype==='pto') return;
-            const label=it.subtype==='pto'?'PTO':'Admin';
-            const colorCls=it.subtype==='pto'?'pto':'admin';
-            items+=`<div class="item ${colorCls} ${it.completed?'done':''}" draggable ondragstart="dStart(event,'${day}','other',${i})" ondragend="dEnd(event)">
-                <div class="item-top">
-                    <input class="item-cb" type="checkbox" ${it.completed?'checked':''} onchange="toggleDone('${day}','other',${i})">
-                    <div class="item-inner"><div class="item-name">${it.name}</div><div class="item-meta">${it.duration}h · ${label}${it.fullDay?' – Full Day':''}</div></div>
-                </div>
-                <button class="item-rm" onclick="removeItem('${day}','other',${i})">Remove</button>
-            </div>`;
+            items+=card(it,i,'other', it.subtype==='pto'?'pto':'admin', (it.subtype==='pto'?'PTO':'Admin')+(it.fullDay?' – Full Day':''));
         });
 
         col.innerHTML=`
@@ -1221,7 +1267,7 @@ function renderGrid(){
     });
 }
 
-/* ── pie ── */
+/* ── pie (canvas gradients) ── */
 function renderPie(){
     const c=document.getElementById('pieChart'), ctx=c.getContext('2d');
     if(!ctx) return;
@@ -1240,28 +1286,45 @@ function renderPie(){
         document.getElementById('chartLeg').innerHTML='<div style="color:#555;text-align:center;font-size:12px;padding-top:6px;">No time logged yet</div>';
         return;
     }
+
     const slices=[
-        {label:'Meetings',val:M,color:'#667eea'},
-        {label:'Tasks',val:T,color:'#48bb78'},
-        {label:'Admin',val:A,color:'#f6ad55'},
-        {label:'PTO',val:P,color:'#666'}
+        {label:'Meetings', val:M, base:'#667eea', light:'#9bb5f5'},
+        {label:'Tasks',    val:T, base:'#48bb78', light:'#7edfaa'},
+        {label:'Admin',    val:A, base:'#f6ad55', light:'#ffd08a'},
+        {label:'PTO',      val:P, base:'#666',    light:'#999'}
     ].filter(s=>s.val>0);
+
     let ang=-Math.PI/2;
     slices.forEach(s=>{
         const sw=(s.val/tot)*Math.PI*2;
-        ctx.fillStyle=s.color;
+        // gradient runs perpendicular to the slice's mid-radius
+        const midAng=ang+sw/2;
+        const x1=cx+r*Math.cos(midAng-Math.PI/2);
+        const y1=cy+r*Math.sin(midAng-Math.PI/2);
+        const x2=cx+r*Math.cos(midAng+Math.PI/2);
+        const y2=cy+r*Math.sin(midAng+Math.PI/2);
+        const grad=ctx.createLinearGradient(x1,y1,x2,y2);
+        grad.addColorStop(0,s.base);
+        grad.addColorStop(1,s.light);
+
+        ctx.fillStyle=grad;
         ctx.beginPath(); ctx.moveTo(cx,cy);
         ctx.arc(cx,cy,r,ang,ang+sw); ctx.closePath(); ctx.fill();
         ang+=sw;
     });
+
+    // donut hole
     ctx.fillStyle='#0a0a0a';
     ctx.beginPath(); ctx.arc(cx,cy,r-20,0,Math.PI*2); ctx.fill();
+    // center label
     ctx.fillStyle='#fff';
     ctx.font='700 15px "DM Mono",monospace';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(tot.toFixed(1)+'h',cx,cy);
+
+    // legend dots — small gradient squares
     document.getElementById('chartLeg').innerHTML=slices.map(s=>
-        `<div class="leg-row"><div class="leg-left"><div class="leg-dot" style="background:${s.color}"></div><span class="leg-name">${s.label}</span></div><span class="leg-val">${s.val.toFixed(1)}h</span></div>`
+        `<div class="leg-row"><div class="leg-left"><div class="leg-dot" style="background:linear-gradient(135deg,${s.base},${s.light})"></div><span class="leg-name">${s.label}</span></div><span class="leg-val">${s.val.toFixed(1)}h</span></div>`
     ).join('');
 }
 
@@ -1293,14 +1356,12 @@ function renderSummary(){
     cfg.days.forEach(day=>{
         const dl=[];
         (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{
-            const tag=i.recurringId?' [recurring]':'';
-            dl.push(`  • ${i.name}${tag} (${i.duration}h)`);
+            dl.push(`  • ${i.name}${i.recurringId?' [recurring]':''} (${i.duration}h)`);
             cM+=i.duration; any=true;
         });
         (data[day]?.tasks||[]).filter(i=>i.completed).forEach(i=>{dl.push(`  • ${i.name} (${i.duration}h)`);cT+=i.duration;any=true;});
         (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{
-            const tag=i.subtype==='pto'?'PTO':'Admin';
-            dl.push(`  • ${i.name} (${i.duration}h · ${tag}${i.fullDay?' – Full Day':''})`);
+            dl.push(`  • ${i.name} (${i.duration}h · ${i.subtype==='pto'?'PTO':'Admin'}${i.fullDay?' – Full Day':''})`);
             if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration;
             any=true;
         });
@@ -1328,14 +1389,11 @@ function copySummary(){
     });
 }
 
-/* ── reset: clears one-offs + confirmed suggestions, but re-shows suggestions ── */
+/* ── reset ── */
 function resetWeek(){
     if(!confirm('Clear this week? Recurring suggestions will reappear.')) return;
-    // wipe day data
     data={}; ensureData();
-    // wipe this week's state so suggestions come back
-    const wk=thisWeekKey();
-    delete weekState[wk];
+    delete weekState[thisWeekKey()];
     save(); render();
 }
 </script>
