@@ -323,6 +323,32 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); 
 .item-edit-row input:focus { outline:none; border-color:var(--teal-mid); }
 .item-edit-row .ef-name { flex:1; min-width:0; }
 .item-edit-row .ef-dur  { width:54px; text-align:center; font-family:'JetBrains Mono',monospace; }
+
+/* expanded edit form with notes/url */
+.item-edit-expanded { display:flex; flex-direction:column; gap:10px; width:100%; position:relative; z-index:3; padding:4px 0; }
+.item-edit-expanded .ef-row { display:flex; gap:8px; align-items:center; }
+.item-edit-expanded input, .item-edit-expanded textarea { background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:13px; padding:8px 10px; transition:border-color .2s, box-shadow .2s; width:100%; }
+.item-edit-expanded input:focus, .item-edit-expanded textarea:focus { outline:none; border-color:var(--teal-mid); box-shadow:0 0 0 3px rgba(13,148,136,.1); }
+.item-edit-expanded .ef-name { flex:1; min-width:0; }
+.item-edit-expanded .ef-dur { width:75px; text-align:center; font-family:'JetBrains Mono',monospace; flex-shrink:0; }
+.item-edit-expanded .ef-url { flex:1; }
+.item-edit-expanded .ef-url::placeholder { color:var(--muted); }
+.item-edit-expanded textarea { resize:vertical; min-height:50px; max-height:120px; line-height:1.5; }
+.item-edit-expanded textarea::placeholder { color:var(--muted); }
+.item-edit-expanded .ef-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; display:flex; align-items:center; gap:5px; }
+.item-edit-expanded .ef-field { display:flex; flex-direction:column; }
+.item-edit-expanded .ef-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:4px; }
+.item-edit-expanded .ef-save, .item-edit-expanded .ef-cancel { background:var(--card); border:1px solid var(--border); color:var(--text); padding:7px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s; box-shadow:var(--shadow-sm); }
+.item-edit-expanded .ef-save:hover, .item-edit-expanded .ef-cancel:hover { border-color:var(--text-secondary); }
+.item-edit-expanded .ef-save { background:var(--teal-mid); border-color:var(--teal-mid); color:#fff; }
+.item-edit-expanded .ef-save:hover { background:var(--teal-dark); border-color:var(--teal-dark); }
+
+/* notes/url indicator icons on items */
+.item-indicators { display:inline-flex; gap:4px; margin-left:6px; vertical-align:middle; }
+.item-indicators .ind { font-size:12px; opacity:.7; text-decoration:none; transition:opacity .15s; }
+.item-indicators .ind:hover { opacity:1; }
+.item-indicators .ind-notes { color:var(--task); cursor:default; }
+.item-indicators .ind-url { color:var(--meeting); cursor:pointer; }
 .ef-btns { display:flex; gap:5px; flex-shrink:0; }
 .ef-btns button { background:none; border:none; cursor:pointer; font-size:15px; padding:2px 5px; border-radius:4px; transition:all .15s; }
 .ef-btns .ef-save   { color:var(--task); }
@@ -820,7 +846,7 @@ function confirmSuggestion(stateKey,recId,day){
     const rec=cfg.recurring.find(r=>r.id===recId); if(!rec) return;
     if(!data[day]) data[day]={meetings:[],tasks:[],other:[]};
     const cat=rec.category||'meetings';
-    const item={name:rec.name,duration:rec.duration,completed:false,recurringId:recId,priority:false};
+    const item={name:rec.name,duration:rec.duration,completed:false,recurringId:recId,priority:false,notes:'',url:''};
     if(cat==='meetings') data[day].meetings.push(item);
     else if(cat==='tasks') data[day].tasks.push(item);
     else data[day].other.push({...item,subtype:cat,fullDay:false});
@@ -844,7 +870,9 @@ function ensureData(){
                     i.priority=i.important; 
                     delete i.important; 
                 }
-                if(i.priority===undefined) i.priority=false; 
+                if(i.priority===undefined) i.priority=false;
+                if(i.notes===undefined) i.notes='';
+                if(i.url===undefined) i.url='';
             }); 
         });
     });
@@ -1032,7 +1060,7 @@ function addUnified(){
     const day=document.getElementById('uDay').value;
     const dur=isFullDay?dayHours():parseFloat(document.getElementById('uDur').value);
     if(!name||!dur) return;
-    const item={name,duration:dur,completed:false,priority:isPriority};
+    const item={name,duration:dur,completed:false,priority:isPriority,notes:'',url:''};
     if(activeCat==='meetings') data[day].meetings.push(item);
     else if(activeCat==='tasks') data[day].tasks.push(item);
     else data[day].other.push({...item,subtype:activeCat,fullDay:isFullDay});
@@ -1065,19 +1093,47 @@ function startInlineEdit(day,cat,idx){
     if(!card) return;
     card.classList.add('editing');
     const inner=card.querySelector('.item-inner');
-    const oldName=item.name, oldDur=item.duration;
-    inner.innerHTML=`<div class="item-edit-row"><input class="ef-name" type="text" value="${oldName}"><input class="ef-dur" type="number" step="0.25" min="0.25" value="${oldDur}"><div class="ef-btns"><button class="ef-save" title="Save">✓</button><button class="ef-cancel" title="Cancel">✕</button></div></div>`;
+    const escapeHtml=(str)=>(str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const escapeTextarea=(str)=>(str||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    inner.innerHTML=`<div class="item-edit-expanded">
+        <div class="ef-row">
+            <input class="ef-name" type="text" value="${escapeHtml(item.name)}" placeholder="Name">
+            <input class="ef-dur" type="number" step="0.25" min="0.25" value="${item.duration}">
+        </div>
+        <div class="ef-field">
+            <div class="ef-label">🔗 Link / URL</div>
+            <input class="ef-url" type="url" value="${escapeHtml(item.url||'')}" placeholder="https://...">
+        </div>
+        <div class="ef-field">
+            <div class="ef-label">📝 Notes</div>
+            <textarea class="ef-notes" placeholder="Add any relevant notes...">${escapeTextarea(item.notes||'')}</textarea>
+        </div>
+        <div class="ef-btns">
+            <button class="ef-cancel">Cancel</button>
+            <button class="ef-save">Save</button>
+        </div>
+    </div>`;
     const nameInp=inner.querySelector('.ef-name'), durInp=inner.querySelector('.ef-dur');
+    const urlInp=inner.querySelector('.ef-url'), notesInp=inner.querySelector('.ef-notes');
     nameInp.focus(); nameInp.select();
     const commitEdit=()=>{
         const newName=nameInp.value.trim(), newDur=parseFloat(durInp.value);
-        if(newName&&newDur>0){ item.name=newName; item.duration=newDur; save(); }
+        const newUrl=urlInp.value.trim(), newNotes=notesInp.value.trim();
+        if(newName&&newDur>0){ 
+            item.name=newName; 
+            item.duration=newDur; 
+            item.url=newUrl;
+            item.notes=newNotes;
+            save(); 
+        }
         render();
     };
     inner.querySelector('.ef-save').onclick=e=>{ e.stopPropagation(); commitEdit(); };
     inner.querySelector('.ef-cancel').onclick=e=>{ e.stopPropagation(); render(); };
-    nameInp.addEventListener('keydown',e=>{ if(e.key==='Enter') commitEdit(); if(e.key==='Escape') render(); });
-    durInp.addEventListener('keydown',e=>{ if(e.key==='Enter') commitEdit(); if(e.key==='Escape') render(); });
+    [nameInp, durInp, urlInp].forEach(inp=>{
+        inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); commitEdit(); } if(e.key==='Escape') render(); });
+    });
+    notesInp.addEventListener('keydown',e=>{ if(e.key==='Escape') render(); });
 }
 
 function onDragStart(e,day,cat,idx){
@@ -1189,11 +1245,15 @@ function renderWeek(){
                 const priorityBtnClass=i.priority?'priority-on':'';
                 const canHavePriority=(i.cat==='meetings'||i.cat==='tasks'||(i.cat==='other'&&i.type==='admin'));
                 const priorityBtn=canHavePriority?`<button class="hov-btn ${priorityBtnClass}" onclick="event.stopPropagation();toggleItemPriority('${day}','${i.cat}',${i.idx})">⚡</button>`:'';
+                const indicators=[];
+                if(i.notes) indicators.push('<span class="ind ind-notes" title="Has notes">📝</span>');
+                if(i.url) indicators.push(`<a href="${i.url}" target="_blank" rel="noopener" class="ind ind-url" title="Open link" onclick="event.stopPropagation()">🔗</a>`);
+                const indHtml=indicators.length?`<span class="item-indicators">${indicators.join('')}</span>`:'';
                 return `<div class="item ${typeClass} ${done} ${priorityClass}" draggable="true" ondragstart="onDragStart(event,'${day}','${i.cat}',${i.idx})" ondragend="onDragEnd(event)" data-day="${day}" data-cat="${i.cat}" data-idx="${i.idx}">
                     <div class="item-top">
                         <input type="checkbox" class="item-cb" ${i.completed?'checked':''} onclick="event.stopPropagation();toggleDone('${day}','${i.cat}',${i.idx})">
                         <div class="item-inner">
-                            <div class="item-name">${i.name}${priorityBadge}${recBadge}</div>
+                            <div class="item-name">${i.name}${indHtml}${priorityBadge}${recBadge}</div>
                             <div class="item-meta">${i.duration}h${i.fullDay?' · Full Day':''}</div>
                         </div>
                     </div>
@@ -1309,14 +1369,24 @@ function renderSummary(){
         (data[day]?.meetings||[]).filter(i=>i.completed).forEach(i=>{
             const flag=i.priority?' ⚡':'';
             dl.push(`  • ${i.name}${i.recurringId?' [recurring]':''}${flag} (${i.duration}h)`);
+            if(i.notes) dl.push(`      📝 ${i.notes}`);
+            if(i.url) dl.push(`      🔗 ${i.url}`);
             cM+=i.duration; any=true;
         });
         (data[day]?.tasks||[]).filter(i=>i.completed).forEach(i=>{
             const flag=i.priority?' ⚡':'';
             dl.push(`  • ${i.name}${flag} (${i.duration}h)`);
+            if(i.notes) dl.push(`      📝 ${i.notes}`);
+            if(i.url) dl.push(`      🔗 ${i.url}`);
             cT+=i.duration; any=true;
         });
-        (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{ const flag=(i.subtype==='admin'&&i.priority)?' ⚡':''; dl.push(`  • ${i.name}${flag} (${i.duration}h · ${i.subtype==='pto'?'PTO':'Admin'}${i.fullDay?' – Full Day':''})`); if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration; any=true; });
+        (data[day]?.other||[]).filter(i=>i.completed).forEach(i=>{ 
+            const flag=(i.subtype==='admin'&&i.priority)?' ⚡':''; 
+            dl.push(`  • ${i.name}${flag} (${i.duration}h · ${i.subtype==='pto'?'PTO':'Admin'}${i.fullDay?' – Full Day':''})`); 
+            if(i.notes) dl.push(`      📝 ${i.notes}`);
+            if(i.url) dl.push(`      🔗 ${i.url}`);
+            if(i.subtype==='pto') cP+=i.duration; else cA+=i.duration; any=true; 
+        });
         if(dl.length){ lines.push(day.toUpperCase()); lines.push('───────────────────────────'); lines.push(...dl); lines.push(''); }
     });
     if(!any){ document.getElementById('summaryOut').innerHTML='<span class="summary-ph">Check off completed items to build your weekly log…</span>'; return; }
